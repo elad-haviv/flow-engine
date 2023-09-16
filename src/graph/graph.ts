@@ -10,10 +10,16 @@ export default class Graph<T> {
     public vertices: Map<T, Vertex<T>>;
     public type: GraphType;
 
-    public get edges(): Array<Edge<T, T> {
-        return [...this.vertices.values()].flatMap((vertex: Vertex<T>) =>
-            vertex.adjacencies.map((adjacet) => [vertex, adjacet])
-        );
+    public get edges(): Array<Edge<T, T>> {
+        const edges : Array<Edge<T, T>> = [];
+
+        for (const vertex of this.vertices) {
+            for (const adjacent of vertex[1].adjacencies) {
+                edges.push([vertex[1], adjacent]);
+            }
+        }
+
+        return edges;
     }
 
     constructor(type: GraphType) {
