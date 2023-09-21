@@ -1,5 +1,5 @@
-import Edge from "./edge.ts";
-import Vertex from "./vertex.ts";
+import Edge from "./Edge.ts";
+import Vertex from "./Vertex.ts";
 
 export enum GraphType {
     Unidirectional,
@@ -11,7 +11,7 @@ export default class Graph<T> {
     public type: GraphType;
 
     public get edges(): Array<Edge<T, T>> {
-        const edges : Array<Edge<T, T>> = [];
+        const edges: Array<Edge<T, T>> = [];
 
         for (const vertex of this.vertices) {
             for (const adjacent of vertex[1].adjacencies) {
@@ -51,23 +51,23 @@ export default class Graph<T> {
         return null;
     }
 
-    addEdge(source: T, target: T): void {
+    addEdge(source: T, target: T, bidirectional: boolean | null): void {
         const sourceVertex = this.addVertex(source);
         const targetVertex = this.addVertex(target);
 
         sourceVertex.addAdjacent(targetVertex);
-        if (this.type === GraphType.Bidirectional) {
+        if (this.type === GraphType.Bidirectional || bidirectional) {
             targetVertex.addAdjacent(sourceVertex);
         }
     }
 
-    removeEdge(source: T, target: T, both: boolean | null): void {
+    removeEdge(source: T, target: T, bidirectional: boolean | null): void {
         const sourceVertex = this.addVertex(source);
         const targetVertex = this.addVertex(target);
 
         if (sourceVertex && targetVertex) {
             sourceVertex.removeAdjacent(target);
-            if (this.type === GraphType.Bidirectional && both) {
+            if (this.type === GraphType.Bidirectional || bidirectional) {
                 targetVertex.removeAdjacent(source);
             }
         }
