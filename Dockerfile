@@ -12,6 +12,8 @@ COPY packages/scene/package.json packages/scene/
 COPY packages/symbols/package.json packages/symbols/
 COPY packages/editor/package.json packages/editor/
 COPY packages/ui/package.json packages/ui/
+COPY packages/views/package.json packages/views/
+COPY packages/io/package.json packages/io/
 COPY tools/eslint-plugin-flow/package.json tools/eslint-plugin-flow/
 RUN pnpm install --frozen-lockfile
 COPY . .
