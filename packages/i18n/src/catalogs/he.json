@@ -55,7 +55,7 @@
   "diag.engine.cable.thermal_withstand": "חתך {section} ממ\"ר קטן מדי לזרם הקצר.",
   "diag.engine.standards.no_table": "אין טבלת תקן לשיטה {method}, {material} {insulation}, {section} ממ\"ר.",
   "diag.engine.standards.unverified": "טבלאות תקן שטרם אומתו על ידי המהנדס: {tables}.",
-  "diag.engine.assumption.used": "הונחה הנחה: {what}.",
+  "diag.engine.assumption.used": "כושר נשיאת הכבלים מניח מקדמי תיקון של 1 לטמפרטורה ולהקבצה.",
   "diag.engine.sc.unsupported_power_type": "קצר לא מחושב לרשתות מסוג {system}.",
   "diag.engine.sc.contribution_excluded": "תרומת עומסים וממירים לזרם הקצר אינה נכללת.",
   "diag.engine.protection.breaking_capacity_exceeded": "זרם הקצר {fault} A חורג מכושר הניתוק {capacity} A.",

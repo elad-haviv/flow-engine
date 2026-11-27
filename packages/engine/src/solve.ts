@@ -189,6 +189,7 @@ export function solve(project: Project, options: SolveOptions): Results {
   if (!done.converged)
     diags.push(diagnostic(ENGINE_CODES.boundaryNotConverged, "error", [], { iterations: done.iterations }));
   assemble(res, g, live, bases, done, options.profile, diags);
+  if (res.cableChecks.some((c) => c.iz)) diags.push(diagnostic(ENGINE_CODES.assumption, "info", []));
   if (res.cableChecks.length || res.faults.length) {
     diags.push(
       diagnostic(ENGINE_CODES.unverified, "info", [], { tables: [profiles.id, "conductors", "ampacity"].join(", ") }),

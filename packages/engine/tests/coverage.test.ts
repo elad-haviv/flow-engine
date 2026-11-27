@@ -101,3 +101,17 @@ describe("short circuit with a generator", () => {
     expect(r.diagnostics.map((d) => d.code)).toContain("engine.sc.near_generator");
   });
 });
+
+describe("assumption notes", () => {
+  it("the correction-factor note appears once however many cables are checked", () => {
+    const r = run({
+      devices: [
+        grid,
+        { name: "A", kind: "load", params: { power: 1000, powerFactor: 1 } },
+        { name: "B", kind: "load", params: { power: 1000, powerFactor: 1 } },
+      ],
+      wires: [w("G.out", "A.in"), w("G.out", "B.in")],
+    });
+    expect(r.diagnostics.filter((d) => d.code === "engine.assumption.used")).toHaveLength(1);
+  });
+});

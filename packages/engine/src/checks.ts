@@ -37,7 +37,6 @@ function ampacityOf(
     diags.push(diagnostic(ENGINE_CODES.noTable, "error", [cable.id], params));
     return undefined;
   }
-  diags.push(diagnostic(ENGINE_CODES.assumption, "info", [cable.id], { what: "temperature and grouping factors = 1" }));
   return traced(
     iz0,
     "A",

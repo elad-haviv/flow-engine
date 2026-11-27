@@ -55,7 +55,7 @@
   "diag.engine.cable.thermal_withstand": "Cross-section {section} mm2 is too small for the fault current.",
   "diag.engine.standards.no_table": "No standards table for method {method}, {material} {insulation}, {section} mm2.",
   "diag.engine.standards.unverified": "Standards tables not yet verified by the engineer: {tables}.",
-  "diag.engine.assumption.used": "Assumption used: {what}.",
+  "diag.engine.assumption.used": "Cable capacity assumes temperature and grouping correction factors of 1.",
   "diag.engine.sc.unsupported_power_type": "Short circuit is not calculated for {system} networks.",
   "diag.engine.sc.contribution_excluded": "Contributions of loads and converters to the fault current are not included.",
   "diag.engine.protection.breaking_capacity_exceeded": "Fault current {fault} A exceeds the breaking capacity {capacity} A.",
