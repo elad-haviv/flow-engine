@@ -169,7 +169,24 @@ Rejected during ideation and review, with the technical reason. None of these is
 9. Several editions, to be decided together (trial, SaaS with accounts and cloud files, purchased long-term-support with local files).
 10. Built by Claude Code with the owner's guidance; no deadline; Blue Grid file conversion optional.
 
-**Open questions for the owner before `/egm-draft`:**
+**Decided by the owner after the first review (2026-11-27):**
+11. **Verification (was question 1):** The owner is a human electrical engineer and will review the reference test cases. Note for the plan: the owner is also the author, so keep at least one reference case set that comes from outside (published standard examples, or an open-source solver such as pandapower), so the check is independent of the code and of the person who specified it.
+12. **Standards profiles (was question 11):** Israeli law and IEC both, with Israeli law as the default.
+13. **Switching orders (was question 3):** Keep the switching-order generator, with a neutral, configurable template (no IAF branding).
+14. **Series constant-current loops (was question 4):** Full support. The calculation scope in the plan must therefore include compliance voltage, brightness steps, open-circuit behaviour and a closed-loop check.
+15. **Network simplification (was question 5):** Two features: load aggregation (a derived summary) and a visual collapse of a part of the diagram. The reviewers' warning still applies: both are views over the full calculation, with traceable totals, and never a second model.
+16. **Bill of quantities (was question 6):** Owner asked for research and a design proposal. See `docs/research/boq_options.md`. Pricing and catalog choices remain open.
+17. **Core component set (was question 10):** Grid, generator, breakers, busbars, transformers, disconnectors, earthing disconnectors, loads. This is the basic set that must work first. The rest of the 20 to 24 planned types follow the phasing in the plan.
+
+**Still open before `/egm-draft`:**
+* Calculation scope for version 1 (was question 2). Israeli law and IEC are chosen, but not which calculations ship first.
+* Panel schedule, panel layout and panel plans: three outputs or fewer, and how physical the layout must be (was question 6).
+* Phasing and cut line (was question 8).
+* Technology and delivery: stack, offline use, one codebase or separate builds per edition (was question 9).
+* The bill-of-quantities questions at the end of `docs/research/boq_options.md`.
+* The owner's last message ended with a stray "7." that may have been an unfinished answer. Confirm whether something was meant to follow the core component list.
+
+**Original open questions (kept for reference; the ones above supersede them where decided):**
 1. **Verification:** Will a named human electrical engineer review and sign off the reference test cases? If not, we should not claim "verifiable", and the usage policy must say what the tool does not do.
 2. **Calculation scope for version 1:** Which of load flow, voltage drop, short circuit, earth-fault loop, cable sizing and protection coordination must be real in the first release, and which standards (IEC 60909, IEC 60364, Israeli regulations and editions) apply?
 3. **Switching orders:** Does Flow Engine keep the switching-order generator? It was the other half of Blue Grid's purpose, but the IAF template goes. If kept, it needs a neutral, configurable template.
