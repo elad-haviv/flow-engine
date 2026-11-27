@@ -5,7 +5,17 @@ import flow from "./tools/eslint-plugin-flow/src/index.js";
 const lowerLayers = ["packages/model/**", "packages/catalog/**", "packages/engine/**"];
 
 export default tseslint.config(
-  { ignores: [".dependency-cruiser.cjs", "**/dist/**", "**/coverage/**", "node_modules/**", "tests/fixtures/**", "**/fixtures/**"] },
+  {
+    ignores: [
+      ".dependency-cruiser.cjs",
+      "**/dist/**",
+      "**/dist-types/**",
+      "**/coverage/**",
+      "node_modules/**",
+      "tests/fixtures/**",
+      "**/fixtures/**",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

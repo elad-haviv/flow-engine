@@ -13,7 +13,9 @@ describe("each rule fails the build when broken", () => {
     expect(lint("packages/model/src/ok.ts", "export const a = 1;\n")).toBe(0);
   });
   it("forbidden import between layers", () => {
-    expect(run("pnpm", ["exec", "depcruise", "tests/fixtures/forbidden-import", "--config", ".dependency-cruiser.cjs"])).not.toBe(0);
+    expect(
+      run("pnpm", ["exec", "depcruise", "tests/fixtures/forbidden-import", "--config", ".dependency-cruiser.cjs"]),
+    ).not.toBe(0);
   });
   it("file over 300 lines", () => {
     const code = Array.from({ length: 310 }, (_, i) => `export const v${i} = ${i};`).join("\n") + "\n";
@@ -29,7 +31,9 @@ describe("each rule fails the build when broken", () => {
     expect(lint("apps/web/src/x.tsx", "export const A = () => <div>Hello</div>;\n")).not.toBe(0);
   });
   it("kind comparison outside the catalog", () => {
-    expect(lint("packages/engine/src/k.ts", "export const f = (d: { kind: string }) => d.kind === 'breaker';\n")).not.toBe(0);
+    expect(
+      lint("packages/engine/src/k.ts", "export const f = (d: { kind: string }) => d.kind === 'breaker';\n"),
+    ).not.toBe(0);
   });
   it("marker without an issue number", () => {
     const dir = mkdtempSync(join(tmpdir(), "markers-"));

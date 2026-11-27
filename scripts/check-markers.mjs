@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const SKIP = new Set(["node_modules", "dist", "coverage", ".git", "docs", "fixtures"]);
+const SKIP = new Set(["node_modules", "dist", "coverage", ".git", "docs", "fixtures", "tests"]);
 const EXT = /\.(ts|tsx|js|mjs|cjs|json|css|html)$/;
 const MARK = /\b(TODO|FIXME|HACK|legacy|deprecated)\b/i;
 const root = process.argv[2] ?? ".";

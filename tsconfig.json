@@ -1,1 +1,1 @@
-{"files": [], "references": [{"path": "packages/model"}, {"path": "packages/i18n"}, {"path": "packages/platform"}, {"path": "packages/catalog"}, {"path": "tsconfig.cross.json"}]}
+{"files": [], "references": [{"path": "packages/model"}, {"path": "packages/i18n"}, {"path": "packages/platform"}, {"path": "packages/catalog"}, {"path": "tsconfig.cross.json"}, {"path": "apps/web"}]}

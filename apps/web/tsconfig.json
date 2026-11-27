@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "jsx": "react-jsx", "lib": ["ES2022", "DOM", "DOM.Iterable"], "outDir": "dist-types", "rootDir": ".", "types": ["vite/client"] },
+  "include": ["src", "tests", "vite.config.ts"],
+  "references": [{ "path": "../../packages/model" }, { "path": "../../packages/i18n" }, { "path": "../../packages/platform" }]
+}
