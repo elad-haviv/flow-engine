@@ -14,9 +14,18 @@ export interface CommandPayloads {
   "device.remove": { deviceId: string };
   "device.setParam": { deviceId: string; field: string; value: ParamValue };
   "device.setState": { deviceId: string; state: "closed" | "open" | "grounded" };
-  "wire.add": { cable: { lengthM: number; installation: string; conductors: ConductorSpec[] }; from: Endpoint; to: Endpoint };
+  "wire.add": {
+    cable: { lengthM: number; installation: string; conductors: ConductorSpec[] };
+    from: Endpoint;
+    to: Endpoint;
+  };
   "wire.remove": { wireId: string };
-  "cable.setConductor": { cableId: string; role: string; field: "sectionMm2" | "material" | "insulation"; value: string | number };
+  "cable.setConductor": {
+    cableId: string;
+    role: string;
+    field: "sectionMm2" | "material" | "insulation";
+    value: string | number;
+  };
   "junction.promote": { terminalId: string; name?: string; ratingA?: number };
   "junction.demote": { junctionId: string };
   "circuit.create": { circuit: Omit<Circuit, "id"> };

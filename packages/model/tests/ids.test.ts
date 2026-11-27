@@ -17,7 +17,10 @@ describe("newId", () => {
     expect(seen.size).toBe(100_000);
   });
   it("is reproducible with injected sources", () => {
-    const mk = () => { let i = 0; return { now: () => 5, random: () => ((i++ * 7) % 32) / 32 }; };
+    const mk = () => {
+      let i = 0;
+      return { now: () => 5, random: () => ((i++ * 7) % 32) / 32 };
+    };
     expect(newId(mk())).toBe(newId(mk()));
   });
 });

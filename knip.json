@@ -1,0 +1,8 @@
+{
+  "workspaces": {
+    ".": { "entry": ["scripts/*.mjs"], "ignoreDependencies": ["fast-check"] },
+    "packages/*": { "project": ["src/**/*.ts"] },
+    "tools/*": { "project": ["src/**/*.js"] }
+  },
+  "ignore": ["tests/fixtures/**"]
+}

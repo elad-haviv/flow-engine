@@ -1,5 +1,8 @@
 /** Unknown-data retention: fields the schema does not know are kept at a stable path, never dropped. */
-export interface ExtraEntry { path: string[]; value: unknown }
+export interface ExtraEntry {
+  path: string[];
+  value: unknown;
+}
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
 

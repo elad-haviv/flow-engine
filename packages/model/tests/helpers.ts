@@ -1,11 +1,26 @@
 import fc from "fast-check";
-import { createProject, newId, type ApplyContext, type Command, type CommandPayloads, type CommandType, type Project } from "../src";
+import {
+  createProject,
+  newId,
+  type ApplyContext,
+  type Command,
+  type CommandPayloads,
+  type CommandType,
+  type Project,
+} from "../src";
 
 let n = 0;
 export const ctx: ApplyContext = {
   newId: () => newId({ now: () => 1_700_000_000_000 + n, random: () => ((n++ * 13) % 997) / 997 }),
   now: () => "2026-11-27T00:00:00Z",
-  terminalsFor: (k) => k === "load" ? [{ role: "in", conductors: [] }] : k === "bus" ? [{ role: "bus", conductors: [] }] : k === "grid" ? [{ role: "out", conductors: [] }] : undefined,
+  terminalsFor: (k) =>
+    k === "load"
+      ? [{ role: "in", conductors: [] }]
+      : k === "bus"
+        ? [{ role: "bus", conductors: [] }]
+        : k === "grid"
+          ? [{ role: "out", conductors: [] }]
+          : undefined,
   paramValid: (_k, f, v) => f !== "bad" && v !== undefined,
   stateValid: (_k, s) => s === "open" || s === "closed",
 };

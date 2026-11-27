@@ -13,7 +13,14 @@ function star(n: number): { p: Project; hub: string } {
   const hub = p.terminals[0]!.id;
   for (let i = 0; i < n; i++) {
     p = step(p, cmd("device.add", { kind: "load", name: `l${i}`, params: {} }));
-    p = step(p, cmd("wire.add", { cable: { lengthM: 1, installation: "A", conductors: [cu] }, from: { terminalId: hub }, to: { terminalId: p.terminals[i + 1]!.id } }));
+    p = step(
+      p,
+      cmd("wire.add", {
+        cable: { lengthM: 1, installation: "A", conductors: [cu] },
+        from: { terminalId: hub },
+        to: { terminalId: p.terminals[i + 1]!.id },
+      }),
+    );
   }
   return { p, hub };
 }
@@ -34,7 +41,10 @@ describe("junction promote/demote", () => {
   }
   it("rejections", () => {
     const { p, hub } = star(1);
-    const rej = (c: ReturnType<typeof cmd>) => { const r = applyCommand(p, c, ctx); return r.ok ? "ok" : r.diagnostic.code; };
+    const rej = (c: ReturnType<typeof cmd>) => {
+      const r = applyCommand(p, c, ctx);
+      return r.ok ? "ok" : r.diagnostic.code;
+    };
     expect(rej(cmd("junction.promote", { terminalId: "q".repeat(26) }))).toBe(CODES.junctionNotApplicable);
     const lone = step(p, cmd("device.add", { kind: "load", name: "x", params: {} }));
     expect(applyCommand(lone, cmd("junction.promote", { terminalId: lone.terminals.at(-1)!.id }), ctx).ok).toBe(false);

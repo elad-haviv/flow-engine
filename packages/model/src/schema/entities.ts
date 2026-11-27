@@ -33,10 +33,7 @@ export const cableSchema = z.object({
   conductors: z.array(conductorSchema).min(1),
 });
 
-export const endpointSchema = z.union([
-  z.object({ terminalId: idSchema }),
-  z.object({ junctionId: idSchema }),
-]);
+export const endpointSchema = z.union([z.object({ terminalId: idSchema }), z.object({ junctionId: idSchema })]);
 
 export const wireSchema = z.object({
   id: idSchema,

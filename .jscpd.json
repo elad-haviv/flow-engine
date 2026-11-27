@@ -1,0 +1,1 @@
+{ "threshold": 3, "path": ["packages", "apps", "tools"], "ignore": ["**/node_modules/**", "**/dist/**", "**/tests/**", "**/fixtures/**", "**/catalogs/*.json"], "format": ["typescript", "tsx", "javascript"], "minLines": 8, "minTokens": 80 }

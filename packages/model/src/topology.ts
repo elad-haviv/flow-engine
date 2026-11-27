@@ -12,12 +12,16 @@ export function nets(p: Project): string[][] {
   const parent = new Map<string, string>();
   const find = (k: string): string => {
     let r = parent.get(k) ?? k;
-    if (r !== k) { r = find(r); parent.set(k, r); }
+    if (r !== k) {
+      r = find(r);
+      parent.set(k, r);
+    }
     return r;
   };
   for (const t of p.terminals) parent.set(t.id, t.id);
   for (const w of p.wires) {
-    const a = nodeKey(p, w.from), b = nodeKey(p, w.to);
+    const a = nodeKey(p, w.from),
+      b = nodeKey(p, w.to);
     if (!parent.has(a)) parent.set(a, a);
     if (!parent.has(b)) parent.set(b, b);
     parent.set(find(a), find(b));

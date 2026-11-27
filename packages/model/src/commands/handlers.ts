@@ -1,4 +1,3 @@
-import { CODES } from "../diagnostics/codes";
 import { diagnostic } from "../diagnostics/diagnostic";
 import type { Project, Wire } from "../schema/project";
 import { nodeKey } from "../topology";
@@ -6,8 +5,10 @@ import { getAll, type Change, type Coll, type Entity } from "./changes";
 import type { ApplyContext, ApplyResult } from "./context";
 import type { Command, CommandPayloads } from "./types";
 
-export const fail = (code: string, entities: string[] = []): ApplyResult =>
-  ({ ok: false, diagnostic: diagnostic(code, "error", entities) });
+export const fail = (code: string, entities: string[] = []): ApplyResult => ({
+  ok: false,
+  diagnostic: diagnostic(code, "error", entities),
+});
 export const ok = (changes: Change[]): ApplyResult => ({ ok: true, changes });
 
 export function find<T extends Entity>(p: Project, c: Coll, id: string): T | undefined {
@@ -24,7 +25,12 @@ export function update<T extends Entity>(p: Project, coll: Coll, id: string, aft
   return { coll, id, before: find(p, coll, id), after };
 }
 
-export type Handler<T extends keyof CommandPayloads> = (p: Project, pl: CommandPayloads[T], ctx: ApplyContext, cmd: Command) => ApplyResult;
+export type Handler<T extends keyof CommandPayloads> = (
+  p: Project,
+  pl: CommandPayloads[T],
+  ctx: ApplyContext,
+  cmd: Command,
+) => ApplyResult;
 
 export function endpointExists(p: Project, e: Wire["from"]): boolean {
   if ("terminalId" in e) return !!find(p, "terminals", e.terminalId);

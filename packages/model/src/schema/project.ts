@@ -1,8 +1,15 @@
 import { z } from "zod";
 import { idSchema } from "./common";
 import {
-  annotationSchema, cableSchema, terminalSchema, circuitSchema, deviceSchema, junctionSchema,
-  panelSchema, placementSchema, wireSchema,
+  annotationSchema,
+  cableSchema,
+  terminalSchema,
+  circuitSchema,
+  deviceSchema,
+  junctionSchema,
+  panelSchema,
+  placementSchema,
+  wireSchema,
 } from "./entities";
 
 export const SCHEMA_VERSION = 1;

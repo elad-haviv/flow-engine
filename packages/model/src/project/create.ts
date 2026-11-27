@@ -8,8 +8,19 @@ export function createProject(
   id: string = newId(),
 ): Project {
   return {
-    id, name, locale, profile, schemaVersion: SCHEMA_VERSION,
-    devices: [], terminals: [], cables: [], wires: [], junctions: [],
-    circuits: [], panels: [], placements: [], annotations: [],
+    id,
+    name,
+    locale,
+    profile,
+    schemaVersion: SCHEMA_VERSION,
+    devices: [],
+    terminals: [],
+    cables: [],
+    wires: [],
+    junctions: [],
+    circuits: [],
+    panels: [],
+    placements: [],
+    annotations: [],
   };
 }

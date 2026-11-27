@@ -10,15 +10,28 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
-    "check:markers": "node scripts/check-markers.mjs"
+    "check:markers": "node scripts/check-markers.mjs",
+    "depcheck": "depcruise packages apps --config .dependency-cruiser.cjs",
+    "dupcheck": "jscpd",
+    "unused": "knip",
+    "test:cov": "vitest run --coverage",
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:markers && pnpm depcheck && pnpm dupcheck && pnpm unused && pnpm test:cov",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@types/node": "26.6.11",
+    "@typescript-eslint/parser": "8.74.0",
+    "@vitest/coverage-v8": "5.1.2",
+    "dependency-cruiser": "18.9.0",
     "eslint": "10.16.0",
     "fast-check": "4.11.0",
-    "typescript": "7.0.2",
+    "jscpd": "5.4.3",
+    "knip": "6.48.0",
+    "prettier": "3.10.1",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.74.0",
-    "vitest": "5.1.2",
-    "zod": "4.6.7"
+    "vitest": "5.1.2"
   }
 }

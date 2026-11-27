@@ -56,11 +56,24 @@ export function applyCommand(p: Project, cmd: Command, ctx: ApplyContext): Appli
   }
   const queue = [...(cmd.ids ?? [])];
   const made: string[] = [];
-  const wrapped: ApplyContext = { ...ctx, newId: () => { const id = queue.shift() ?? ctx.newId(); made.push(id); return id; } };
+  const wrapped: ApplyContext = {
+    ...ctx,
+    newId: () => {
+      const id = queue.shift() ?? ctx.newId();
+      made.push(id);
+      return id;
+    },
+  };
   const r = h(p, cmd.payload as never, wrapped, cmd);
   if (!r.ok) return r;
   const command = made.length ? { ...cmd, ids: made } : cmd;
-  return { ok: true, project: applyChanges(p, r.changes), changes: r.changes, inverse: invertChanges(r.changes), command };
+  return {
+    ok: true,
+    project: applyChanges(p, r.changes),
+    changes: r.changes,
+    inverse: invertChanges(r.changes),
+    command,
+  };
 }
 
 /** Apply an inverse change record (undo). */

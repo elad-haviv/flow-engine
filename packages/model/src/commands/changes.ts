@@ -1,10 +1,11 @@
 import type { Project } from "../schema/project";
 
 export type Coll =
-  | "devices" | "terminals" | "cables" | "wires" | "junctions"
-  | "circuits" | "panels" | "placements" | "annotations";
+  "devices" | "terminals" | "cables" | "wires" | "junctions" | "circuits" | "panels" | "placements" | "annotations";
 
-export interface Entity { id: string }
+export interface Entity {
+  id: string;
+}
 
 /** One entity-level change. `before`/`after` undefined means absent. */
 export interface Change {

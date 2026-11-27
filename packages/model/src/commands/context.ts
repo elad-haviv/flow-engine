@@ -11,6 +11,4 @@ export interface ApplyContext {
   stateValid(kind: string, state: string): boolean;
 }
 
-export type ApplyResult =
-  | { ok: true; changes: import("./changes").Change[] }
-  | { ok: false; diagnostic: Diagnostic };
+export type ApplyResult = { ok: true; changes: import("./changes").Change[] } | { ok: false; diagnostic: Diagnostic };

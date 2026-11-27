@@ -1,0 +1,6 @@
+docs
+**/fixtures
+pnpm-lock.yaml
+dist
+coverage
+*.json
