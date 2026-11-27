@@ -1,0 +1,50 @@
+{
+ "format": "flow-project",
+ "schemaVersion": 1,
+ "project": {
+  "id": "00000000000000000000000000",
+  "name": "P",
+  "locale": "he",
+  "profile": {
+   "id": "il",
+   "edition": "2026"
+  },
+  "schemaVersion": 1,
+  "devices": [
+   {
+    "id": "ID000000000000000000000001",
+    "kind": "grid",
+    "name": "G",
+    "params": {}
+   },
+   {
+    "id": "ID000000000000000000000002",
+    "kind": "load",
+    "name": "L",
+    "params": {}
+   }
+  ],
+  "terminals": [
+   {
+    "id": "ID000000000000000000000003",
+    "deviceId": "ID000000000000000000000001",
+    "role": "out",
+    "conductors": []
+   },
+   {
+    "id": "ID000000000000000000000004",
+    "deviceId": "ID000000000000000000000002",
+    "role": "in",
+    "conductors": []
+   }
+  ],
+  "cables": [],
+  "wires": [],
+  "junctions": [],
+  "circuits": [],
+  "panels": [],
+  "placements": [],
+  "annotations": []
+ },
+ "journal": []
+}
