@@ -32,6 +32,7 @@ The program is Hebrew first, with English as the second language, and has no con
 *   Build order, accepted by the owner: foundations, then engine and model with no screen, then editor, then documents (first release), then extended components and series loops, then panel layout, then editions.
 *   Technology, accepted by the owner: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, the app runs in the browser by default, with an Electron desktop wrapper possible later (owner decision, 2026-11-27), and the owner tests every phase on a deployed build in the owner's Coolify.
 *   Blue Grid parity (2026-11-27): the owner followed the Elephant's recommendation on every one of the 357 Blue Grid feature rows in the [parity checklist](./parity-checklist.md). 25 of those rows were the owner's own call and were taken by delegation.
+*   Design-review decisions (2026-11-27): neutral current, per-phase results and the earth-fault loop move from Phase 1 to Phase 4; the saved project is a versioned document with a command journal, not an event log replayed on open; the diagram is drawn with SVG first and canvas only after a measured limit; the first release is Phases 0 to 3 and Phases 4 to 6 are committed.
 
 ### Decisions made while drafting
 
@@ -40,15 +41,15 @@ On 2026-11-27 the owner asked Claude to resolve the open questions below with it
 *   **Circuit entity.** A circuit is a first-class entity in the model. It has an ID, a panel, a way number, a phase assignment, and an ordered list of the devices and the cable it contains. A device may appear in more than one circuit, because a shared residual-current device serves several ways. The tool suggests one circuit per device by following the network downstream of a protective device up to the next protective device, and the user can edit it. *Fails if:* a shared device makes the schedule and the bill of quantities count it twice. Both count each device once by ID, and a test covers a shared device.
 *   **Busbar suggestion threshold.** The suggestion appears at three or more wires on one terminal. Two wires form a plain junction. The model itself has no limit. The owner confirmed three at finalization, when the draft was checked against the concepts brief, which says the app asks when multiple wires share a port without giving a number. *Fails if:* users find the threshold too early or too late. The value is a setting and the dismissals are logged during first-use tests.
 *   **Standards editions.** A project stores a standards profile ID and edition (for example Israeli law and IEC). Tables and rules are versioned data. A manifest created in Phase 0 pins the editions for version 1. The owner chose the latest edition available when Phase 0 starts. The manifest records the edition and the date it was taken. *Fails if:* a project must be recalculated under a newer edition. The project then keeps its pinned edition and shows a visible "newer edition available" notice, and recalculation is an explicit action.
-*   **File format.** One JSON document per project with a schema version, stable IDs, validation on load, and an ordered chain of migrations. The document holds the event log (the saved project) and its snapshots. Unknown or invalid data is reported to the user and never deleted. Local files and cloud storage use the same document. Cloud revision data sits outside the document. *Fails if:* projects grow too large for one document. The format then needs a split into parts, which a schema version can introduce.
+*   **File format.** One JSON document per project with a schema version, stable IDs, validation on load, and an ordered chain of migrations. The document holds the current model and a journal of commands. Unknown or invalid data is reported to the user and never deleted. Local files and cloud storage use the same document. Cloud revision data sits outside the document. *Fails if:* projects grow too large for one document. The format then needs a split into parts, which a schema version can introduce.
 *   **Offline licence check.** The long-term-support edition checks a signed licence file with a public key on the user's device, and needs no network. The trial uses a signed, time-limited token and size limits. *Fails if:* a user changes the system clock or shares a file. The design does not try to stop this. How far to defend is a business decision.
 *   **Diagram label direction.** The diagram's drawing space is left to right, as in electrical practice. Every label is wrapped in a bidirectional isolate so mixed Hebrew and Latin text displays correctly. Numbers and units always read left to right. The user-interface chrome mirrors with the language. *Fails if:* labels collide or reorder wrongly inside SVG. A Phase 2 prototype with real Hebrew project labels checks this before the editor is built.
 *   **First-use target.** Under ten minutes, tested with at least five people who have never used the tool. This is the exit test for Phase 2.
 *   **Reference test cases.** Four sources: worked examples from IEC TR 60909-4, standard IEEE test networks, cross-checks against the open-source solver pandapower (proposed tolerances: 1 percent for fault current and 0.1 percent for voltage drop), and hand calculations. The owner reviews all cases. Israeli-law cases are hand-checked by the owner. *Fails if:* an outside source disagrees with the owner's hand calculation. The case is then recorded as an open dispute with both calculations and is not silently resolved.
 *   **Product name.** "Flow Engine" stays the working name. One web search found no single-line-diagram software with that name. ETAP, EasyPower and elec calc appeared instead. That search is not a trademark or domain check. The owner decided no further check is needed.
-*   **Unbalanced analysis.** Version 1 gives neutral and per-phase results as a balanced-model estimate, labelled as such. Full unbalanced analysis is outside version 1. *Fails if:* a user must size a neutral conductor from the result. The label tells them it is an estimate, and the full method becomes a separate decision (see Alternative K).
-*   **Cloud conflict rule.** The first subscription edition allows one editor per project at a time, with a project lock. Merging commands from simultaneous editors comes later. *Fails if:* teams need simultaneous editing at launch. The event log keeps that path open.
-*   **Snapshots and compaction.** A snapshot is written at every save and after every 200 commands. Compaction is offered, never automatic, when a file passes 20 MB. These numbers are starting values, to be measured in Phase 0. *Fails if:* opening a large project is still slow, which means the interval is too long.
+*   **Unbalanced analysis.** Neutral current, per-phase results and the earth-fault loop are not available until Phase 4. *Fails if:* a user needs the earth-fault check before Phase 4. The method for neutral and per-phase results is decided in Phase 4 (see Alternative K).
+*   **Cloud conflict rule.** The first subscription edition allows one editor per project at a time, with a project lock. Merging commands from simultaneous editors comes later. *Fails if:* teams need simultaneous editing at launch. The journal keeps that path open.
+*   **Journal retention.** The journal keeps the last 5,000 commands by default, and older commands are summarised only when the user asks. This is a starting value, to be measured in Phase 0. *Fails if:* the file grows too large, which means the retention is too long.
 *   **Zero-sequence data.** The catalog stores zero-sequence values for transformers by vector group and for cables from typical ratios in the standards tables. The user can override them. A device with no data produces a fault result marked incomplete, and never an assumed value. *Fails if:* a typical ratio is wrong for a real cable. The result then shows its origin as "typical", so the engineer sees it.
 *   **Standards table entry.** The owner enters standards values as numbers with their source tags. No standard text is copied into the project. The tables are checked by the owner. A legal check of what may be stored and distributed is needed before any commercial release. This is not legal advice.
 *   **Bill of quantities pricing.** The owner holds no Dekel licence. The design therefore uses user-imported price lists and manually entered prices. The Dekel chapter structure is an optional template with labels only and carries no prices. Supplier catalog connectors are not needed for version 1.
@@ -94,8 +95,8 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 3.  **Node-based topology (Phase 1).** Any number of wires may share a terminal. Wires that meet form one node. A rule suggests a busbar when a terminal carries three or more wires (a setting, default three), and offers to insert it. The user can dismiss the suggestion for that terminal. The rule never blocks the user.
 4.  **Compound wires (Phase 1 model, Phase 2 view).** A cable owns an ordered list of conductors. Which conductors exist depends on the power system (for example L1, L2, L3, N, PE for three-phase, or plus and minus for DC). The diagram shows one line by default and can expand it into its conductors. Expanding changes the view and not the data.
 5.  **Four power types (Phase 1, series loops in Phase 4).** AC three-phase, AC single-phase, DC and series constant-current loops each have their own solver. Converters (transformer, rectifier, inverter, frequency drive) are explicit boundaries between regions of different type. No fallback solver exists. A case that cannot be solved produces a visible diagnostic.
-6.  **Calculation scope, first gate (Phase 1).** Load flow with real and reactive power, voltage drop, short circuit per IEC 60909 (maximum, and minimum phase-to-earth), cable sizing, and earth-fault loop with disconnection time.
-7.  **Calculation scope, second gate (Phase 4).** Protection with time-current curves and selectivity between devices, and series constant-current loops with compliance voltage, brightness steps, open-circuit behaviour and a closed-loop check.
+6.  **Calculation scope, first gate (Phase 1).** Load flow with real and reactive power, voltage drop, short circuit per IEC 60909 (three-phase and phase-to-phase, maximum and minimum), and cable sizing.
+7.  **Calculation scope, second gate (Phase 4).** Earth-fault loop with disconnection time, phase-to-earth short circuit, neutral and per-phase results (method decided in Phase 4), protection with time-current curves and selectivity between devices, and series constant-current loops with compliance voltage, brightness steps, open-circuit behaviour and a closed-loop check.
 8.  **Standards profiles (Phase 1).** Israeli law is the default profile and IEC is the second. Tables and rules live in a standards data layer, tagged with their source clause, and separate from the user interface.
 9.  **A first-time user succeeds without help (Phase 2).** A person who has never used the tool can place a source, a breaker and a load, connect them, energise the network and read a result. The target is under ten minutes in a test with at least five such users. The tool teaches its rules with in-place hints, a problems panel with a one-click fix for each entry, and a first-run guide that does not delete the user's work. *(The target and the user count were proposed by Claude and adopted on the owner's delegation. The owner can change them.)*
 10. **One persistent layout (Phase 2).** Edit and simulate share one screen layout. Simulation overlays results on the diagram and never discards edit state.
@@ -147,7 +148,7 @@ None at this time. Questions raised by later review are added here.
 
 *   **Given**: A three-phase cable shown as one line, labelled with its form and size.
 *   **When**: The engineer expands it and sets a different cross-section for the PE conductor.
-*   **Then**: The line fans out into L1, L2, L3, N and PE in the standard colours. The cable properties show the shared values and list the PE difference. The simulation and the bill of quantities use the per-conductor data, and collapsing the wire restores the single line without changing any data.
+*   **Then**: The line fans out into L1, L2, L3, N and PE in the standard colours. The cable properties show the shared values and list the PE difference. The bill of quantities uses the per-conductor data, and from Phase 4 the earth-fault loop check uses the PE conductor, and collapsing the wire restores the single line without changing any data.
 
 ### CUJ 4: Switching order from a rehearsal
 
@@ -171,18 +172,18 @@ None at this time. Questions raised by later review are added here.
 
 ### Approach in one paragraph
 
-Flow Engine is built as layered packages. The bottom layers (model, catalog, engine) contain no screen code and run in a worker or in tests. Views turn the model into documents and drawings. The editor and interface sit on top. Editions are thin shells that choose adapters. The saved project is an append-only log of commands. The engine solves each power type with its own solver. A drawing description sits between the model and the two renderers, so the diagram, the exports and the tests all read the same thing.
+Flow Engine is built as layered packages. The bottom layers (model, catalog, engine) contain no screen code and run in a worker or in tests. Views turn the model into documents and drawings. The editor and interface sit on top. Editions are thin shells that choose adapters. The saved project is a versioned document that holds the current model, with a journal of commands kept beside it. The engine solves each power type with its own solver. A drawing description sits between the model and the renderer, so the diagram, the exports and the tests all read the same thing.
 
 ### Architecture decisions made by the author
 
-These five were chosen through single-select gates on 2026-11-27. Options and trade-offs are in the Alternatives section.
+These five were chosen through single-select gates on 2026-11-27. Two of them (Edits and Rendering) were changed the same day after the design review. Options and trade-offs are in the Alternatives section.
 
 | Decision | Choice | What it requires | How it could fail |
 | --- | --- | --- | --- |
 | Solver | One solver per power type, converters as explicit boundaries | A boundary-iteration rule with an iteration cap and a visible failure diagnostic. A plan for unbalanced loads (see Engine). | Boundary iteration oscillates in networks with many converters. |
 | Topology | Nets derived from terminals and wires; a junction record is stored only when a connection point is made explicit | Conversion between implicit and explicit forms keeps connectivity identical, with a test for it. Events refer to terminals, wires and junctions, never to nets. | The two forms disagree about connectivity. |
-| Edits | The event log is the saved project | Versioned command types, migration of old commands, periodic snapshots, and a compaction rule. | A command's meaning changes between versions and replay gives a different model. |
-| Rendering | SVG at working zoom, canvas when zoomed out or for heavy overlays | One drawing description feeds both renderers, with image tests at the zoom handover. | The renderers drift and a diagram looks different at different zoom levels. |
+| Edits | Commands are the only write path. The saved file holds the current model as the truth, with a journal of the commands beside it | A versioned document with a migration chain. A journal whose old commands are read through upcasters and never rewritten. | The journal and the document disagree after a migration. The journal is advisory, so the document wins and the disagreement is reported. |
+| Rendering | SVG with culling and a spatial index. Canvas only after a measured slowdown | One drawing description (`scene`) feeds the SVG renderer and the DXF, PDF and print output. Phase 2 records the measured limit that would trigger adding canvas. | A large diagram stutters before the limit is measured. |
 | Numerics | In-house numeric core: complex numbers and matrix solving inside `engine` | A dense solver first, a sparse variant when large projects need it, and tests against reference matrices. A condition check that reports floating nodes. | A numerical bug survives because the reference matrices miss its case, or large projects outgrow the dense solver before the sparse one exists. |
 
 Technology accepted earlier by the author: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, the app runs in the browser by default and Electron may come later (owner decision, 2026-11-27).
@@ -256,16 +257,18 @@ Runtime results (voltages, currents, trip states, simulation time) are never par
 
 **Identity.** IDs are generated, stable and never reused. Nothing is identified by a label.
 
-### The event log
+### The saved project and the command journal
 
-The saved project is a list of commands. Each command has a type, a version, a time and an author field, and refers only to stable IDs.
+The saved project is one versioned document. It holds the current model, which is the truth, and a journal of the commands that produced it. Each command has a type, a version, a time and an author field, and refers only to stable IDs.
 
-*   **Replay.** The current model is the result of applying the commands in order.
-*   **Snapshots.** The file also holds snapshots at intervals, so opening a large project does not replay everything. A snapshot is a cache and can be rebuilt from the log.
-*   **Undo.** Undo appends a compensating command. History shows both the original and the undo.
-*   **Migration.** When a command's meaning changes, a migration rewrites old commands to the new form. A fixture file per version tests that replay of an old log gives the expected model.
-*   **Compaction.** The user can compact history. Compaction replaces a span of commands with their net effect, and the original log is kept until the user confirms. The default never compacts silently.
-*   **Cloud.** The same log is the unit of sync. Conflicts are resolved at command level. The rule is open (see Open Questions).
+*   **Open.** The document is validated and migrated to the current schema, then loaded. The journal is not replayed, so opening costs the size of the document.
+*   **Write path.** Commands are the only way to change the model. Each command updates the model and appends to the journal.
+*   **Undo.** Undo applies the inverse of the last command, derived from the change that command made, and appends a compensating command to the journal. One user action is one undo step. There is no fixed depth.
+*   **Migration.** The document schema has a version and an ordered migration chain. Journal commands are read through upcasters that translate an old command to the current form at read time. Stored commands are never rewritten. A fixture per schema version tests that an old document opens to the expected model.
+*   **Journal role.** The journal serves the audit trail, the undo history and future sync. If the journal and the document disagree after a migration, the document wins and the disagreement is reported as a diagnostic.
+*   **Retention.** The journal keeps the last 5,000 commands by default. Older commands are summarised only when the user asks, and nothing is dropped silently. The number is a starting value to be measured in Phase 0.
+*   **Sharing.** Exporting a project can strip the journal and the author fields.
+*   **Cloud.** The journal is the unit of sync. The rule for merging two editors' commands is decided in Phase 6. The first subscription edition allows one editor per project at a time.
 
 ### Topology and the busbar rule
 
@@ -280,7 +283,7 @@ The saved project is a list of commands. Each command has a type, a version, a t
 *   One catalog record per device kind: terminals, parameters with units and ranges, which power types it works in, which behaviours it provides (switching, protection, conversion), and the rules it follows. Its drawing is a separate asset in `symbols`, found by catalog ID. A test fails when a kind lacks either.
 *   Cable types and conductor data come from standards tables, each value tagged with its source (standard, edition, clause or table).
 *   A **standards profile** (Israeli law, IEC) is a named set of tables and rules. A project records the profile and edition. A manifest pins the editions for version 1.
-*   Zero-sequence data (needed for unbalanced faults) lives in the catalog for transformers and cables. A device without it is flagged and its fault results show as incomplete.
+*   Zero-sequence data (needed for phase-to-earth faults, Phase 4) lives in the catalog for transformers and cables. A device without it is flagged and its fault results show as incomplete.
 *   User-added kinds and cable types are allowed. They are marked as user data in every result that depends on them.
 
 ### Engine
@@ -296,13 +299,15 @@ The saved project is a list of commands. Each command has a type, a version, a t
 
 **Boundaries.** Regions exchange voltage and power at converters. The solver repeats until the boundary values agree within a stated tolerance or reaches an iteration cap. If the cap is reached, the engine reports a diagnostic that names the boundary and shows the last values. It never keeps old results as if they were current.
 
-**Short circuit.** IEC 60909 with sequence networks for three-phase, phase-to-phase and phase-to-earth faults. Contributions from all sources and parallel paths are included. Results include the peak and the breaking current. A device's breaking capacity is compared with the fault current at its location.
+**Short circuit.** IEC 60909 for three-phase and phase-to-phase faults, maximum and minimum, from the positive-sequence network. Contributions from all sources and parallel paths are included. Phase-to-earth faults need zero-sequence data and move to Phase 4 with the earth-fault loop. Results include the peak and the breaking current. A device's breaking capacity is compared with the fault current at its location.
 
 **Protection.** Devices carry time-current characteristics. The engine reports tripping times and a selectivity verdict between each device and the one upstream of it. Phase 4.
 
-**Cable sizing and earth-fault loop.** Cable sizing uses the standards tables and correction factors for the chosen profile. The earth-fault loop check uses the device characteristic, the earthing system and the disconnection-time limit of the profile.
+**Cable sizing.** Cable sizing uses the standards tables and correction factors for the chosen profile.
 
-**Unbalanced loads on a balanced solver.** The balanced solver gives positive-sequence results. Single-phase loads on a three-phase network are allocated to phases, and the engine reports per-phase currents and neutral current as an estimate derived from the balanced result. These results carry a label "balanced-model estimate" and do not claim to equal a full unbalanced solution. This is a known limit of the chosen solver design.
+**Earth-fault loop (Phase 4).** The check uses the PE conductor data, the earthing system, the device characteristic and the disconnection-time limit of the profile. Until Phase 4 the engine returns a "not supported" diagnostic for it.
+
+**Unbalanced loads.** The balanced solver gives positive-sequence results. Neutral current, per-phase voltage drop and unbalanced fault results are not supported in Phases 0 to 3, and any result that would need them is a "not supported" diagnostic with a stable code. Single-phase loads are assigned to a phase for the circuit schedule and the phase-balance table. That table is a connected-load summary and does not calculate neutral current. Phase 4 decides the method for neutral and per-phase results (see Alternative K).
 
 **Diagnostics.** Every problem is a structured diagnostic: a stable code, severity, the affected entity IDs, and parameters. Text is made at the edge from message catalogs. Missing inputs produce a diagnostic and no result.
 
@@ -325,9 +330,10 @@ The saved project is a list of commands. Each command has a type, a version, a t
 ### Rendering and drawing description
 
 *   The `scene` layer turns the model, placements and results into a drawing description: shapes, text runs with direction, layers, and hit regions.
-*   The SVG renderer draws the visible area at working zoom. The canvas renderer takes over when zoomed out beyond a set level, or for heavy overlays such as animated current. A spatial index limits what each renderer draws.
-*   Both renderers read the same description, so they cannot disagree about what to draw. Image tests compare them at the handover zoom.
-*   DXF, PDF and printed output are made from the drawing description, not from either renderer.
+*   The SVG renderer draws the visible area. A spatial index and culling limit what it draws, as in Blue Grid, and animated current switches off above a visible-wire budget.
+*   A canvas renderer is added only if a measured limit is reached. Phase 2 records the diagram size and the frame time at which panning stutters, and that number is the trigger.
+*   The drawing description stays the single source for the SVG renderer and for DXF, PDF and printed output, so a canvas renderer can be added later without changing the model or the exports.
+*   DXF, PDF and printed output are made from the drawing description, not from the renderer.
 *   Text runs carry their direction. Every label is a bidirectional isolate. Numbers and units read left to right. A Phase 2 prototype checks real Hebrew project labels before the editor is built.
 
 ### Editor behaviour
@@ -364,9 +370,11 @@ The saved project is a list of commands. Each command has a type, a version, a t
 | 1 | Engine and model for the eight core components and the first calculation gate, plus reference tests, and a calculation console page in the browser (load a network file, see results and traces; no editor). Includes the switching and protection rules of the core components: lock-out and tag-out for components and wires, no opening a disconnector under load (with a repair path for the fault it causes), a tripped device resets only to open, instant overcurrent trip, voltage-limit and source-overload diagnostics, and the simulation options as inputs to the run | The owner signs off the reference set. Every result has a trace. |
 | 2 | Editor: nets and compound wires, busbar advice, problems panel, Hebrew and English, design system, location zones and the layers pane, the annotation layer, the library and schema-driven property forms for the core components, a visible mode banner with Escape to cancel, one settings page, and a first-run guide that never deletes work | A new user wires and energises a feeder unaided in under ten minutes (five users). |
 | 3 | Documents: switching log and order, circuit schedule, bill of quantities, DXF; the interlock check; operator tools for lock-out and earthing; an optional Blue Grid file converter (the owner's call) | **First release**, local edition. |
-| 4 | Remaining components, series loops, protection and selectivity, load aggregation and visual collapse. Includes the RCD with leakage summed from downstream, the fuse, the protection profile on the switch, one converter, the UPS as converter plus battery plus bypass, the control-logic layer (synchroniser, ATS, interlock authoring), the fuel tank, and load aggregation without live monitoring | Second calculation gate passes its reference cases. |
+| 4 | Remaining components, series loops, protection and selectivity, the earth-fault loop with disconnection time, phase-to-earth short circuit, neutral and per-phase results (method decided in Phase 4), load aggregation and visual collapse. Includes the RCD with leakage summed from downstream, the fuse, the protection profile on the switch, one converter, the UPS as converter plus battery plus bypass, the control-logic layer (synchroniser, ATS, interlock authoring), the fuel tank, and load aggregation without live monitoring | Second calculation gate passes its reference cases. |
 | 5 | Panel layout and panel plan export | Layout and schedule agree on the same model. |
 | 6 | Editions: accounts, cloud storage, sync, the optional Electron wrapper, and a read-only phone view (the owner's call) | Conflict rule is decided and tested. |
+
+The first release is Phases 0 to 3. Phases 4 to 6 are committed: they stay in the plan, and each gets its own spec before work starts.
 
 ### Blue Grid parity
 
@@ -385,14 +393,14 @@ The first release is not complete until every KEEP and REDESIGN row that falls i
 ### Risks and limits
 
 *   **Real numbers is a promise.** The plan depends on reference cases from outside the code and on the owner's review. Without both, "verifiable" cannot be claimed.
-*   **Balanced solver limit.** Unbalanced and neutral results are estimates. Users who need full unbalanced analysis will not get it until a later decision.
+*   **Balanced solver limit.** Neutral current, per-phase results and the earth-fault loop are not available until Phase 4. A user who needs them before then gets a "not supported" diagnostic, by design.
 *   **Boundary iteration.** Networks with many converters may fail to converge. The cap and the diagnostic are mandatory, and a test network with many converters is part of the reference set.
-*   **Event log growth.** Without compaction, files grow with every edit. Without migration discipline, old files stop opening. Both are tested from Phase 0.
+*   **Journal and document.** The document is the truth and the journal is advisory. A migration bug could make them disagree. The disagreement is reported, and a fixture per schema version covers it.
 *   **Cloud merging of commands** is harder than merging a document. The rule is deferred to Phase 6 and the log design must not make it impossible.
-*   **Two renderers.** The risk of drift is reduced by the shared drawing description and image tests, and not removed.
-*   **Scope.** The plan is large. The phase gates exist to allow stopping or cutting after any phase.
+*   **One renderer.** SVG may stutter on very large diagrams. Phase 2 measures the limit, and the drawing description keeps a canvas renderer possible without changing the model.
+*   **Scope.** The plan is large. The first release is Phases 0 to 3. Phases 4 to 6 are committed, with a spec each before work starts.
 *   **Browser limits.** The File System Access API is missing in Firefox and Safari, and IndexedDB has storage quotas, so file handling differs by browser and large projects may hit quotas. A user may clear site data and lose an autosave that was never exported.
-*   **Zero-sequence data** is often missing from catalogs. Fault results for unbalanced faults depend on it.
+*   **Zero-sequence data** is often missing from catalogs. Phase-to-earth fault results (Phase 4) depend on it.
 *   **Blue Grid defects found in the parity review, not to be ported.** Delete and cut ignore the lock flag, and the wire lock flag is never checked by the engine. Two context-menu actions are stubs (forward and backward z-order equal front and back) and distribute does nothing. A disconnector arc fault latches with no repair path. An RCD reads only its own node's leakage, so an RCD upstream of a leaking load never trips. The constant-current regulator's open-circuit trip checks a string that nothing sets. Fault current on a cable fault falls back silently to the node's maximum or a fixed 1000 A. Each needs a specified behaviour and a test in its phase. Found by reading the code, not by running it.
 *   **Standards licensing.** The text of standards is copyrighted. The tables in the catalog must be entered and tagged by the owner or taken from permitted sources.
 
@@ -504,13 +512,25 @@ Where the author chose between options at a decision gate on 2026-11-27, the aut
 *   **Cons**: Depends on a patch library. Patches are harder to read than named commands. Data the library cannot track is missed.
 *   **Reason for Rejection**: Not selected by author at the gate. It becomes the better choice if event-log migration proves too costly.
 
+##### Alternative U: The event log as the saved project
+
+*   **Pros**: Full history and a natural base for cloud sync and revision comparison.
+*   **Cons**: Migration and compaction rewrite history, which conflicts with using it as the sync unit. Files grow with every edit unless compacted. Opening a large project needs snapshots. A command whose meaning changes makes replay give a different model.
+*   **Reason for Rejection**: Not selected by author on 2026-11-27 after the design review. It was the first gate's choice and was changed to a document with a journal. It becomes the better choice if cloud sync needs command-level merging at launch.
+
+##### Alternative V: A document with an in-memory undo stack and no journal
+
+*   **Pros**: The simplest saved file. No journal to migrate.
+*   **Cons**: No audit trail and no history across sessions. A later cloud sync has no command record to merge.
+*   **Reason for Rejection**: Not selected by author at the second gate on 2026-11-27. It becomes the better choice if the journal proves costly and no audit trail is needed.
+
 #### Decision 4: how the diagram is drawn
 
-##### Alternative Q: SVG elements only
+##### Alternative Q: SVG plus canvas from the start
 
-*   **Pros**: The same approach as Blue Grid. The browser handles Hebrew and mixed-direction text, keyboard focus and styling. Printing and vector export are direct.
-*   **Cons**: Thousands of elements slow panning and zooming, even with culling. Blue Grid already needed culling and an animation cut-off.
-*   **Reason for Rejection**: Not selected by author at the gate. It becomes the better choice if the two renderers prove too costly to keep identical.
+*   **Pros**: Smooth at large scale and for animated current from the first release, with the accessibility and text handling of SVG where users work.
+*   **Cons**: Two renderers must stay identical. The browser's text and bidirectional handling does not carry to canvas, DXF or PDF, so `scene` would do its own text layout.
+*   **Reason for Rejection**: Not selected by author on 2026-11-27 after the design review. It was the first gate's choice and was changed to SVG first. It becomes the better choice if the measured SVG limit is reached.
 
 ##### Alternative R: Canvas only
 
@@ -535,6 +555,8 @@ Where the author chose between options at a decision gate on 2026-11-27, the aut
 ## Detailed Implementation Plan
 
 ### Scope of this plan
+
+**Superseded in part.** The Phase 0 and Phase 1 file lists below are superseded by [the Phase 0 spec](../specs/phase-0-foundations.md) and [the Phase 1 spec](../specs/phase-1-engine.md). Where they differ, the specs rule. The design-review decisions of 2026-11-27 (journal instead of event log, SVG first, earth-fault loop and neutral results in Phase 4) apply to those specs and not to the lists below.
 
 This plan lists **every file for Phase 0 and Phase 1**, which are the next work. For Phases 2 to 6 it lists packages and key folders only. Each later phase gets its own one-page spec in `docs/specs/` before work on it starts, as the plan's own rule requires. Listing every file of later phases now would be invented detail.
 
