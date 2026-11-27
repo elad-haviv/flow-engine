@@ -47,7 +47,7 @@ Ten fresh reviewers read the concept and the Blue Grid code (v0.87) with no othe
    * There are no design tokens. The code has 113 uses of 10 px text. Accessibility is a layer of `!important` overrides.
    * Right-to-left is patched by hand in 14 or more places. Mixed Hebrew/Latin labels render wrongly (for example "(PDF)" jumps to the front). There is no translation layer. Hebrew text appears in about 100 to 140 files, including engine error messages, and one alert filter works by matching Hebrew wording.
 4. **The code shows "patches on patches".**
-   * Several components have two copies of their physics. The registry silently overwrites the old inline copy, which was never deleted, so edits to it do nothing. One Connector file is dead. One logic setting (Interlock XOR) is stored and never used.
+   * Several components have two copies of their physics. The registry silently overwrites the old inline copy, which was never deleted, so edits to it do nothing. One Connector file is dead. (A claim made earlier in this review, that the Interlock XOR setting is stored and never used, was wrong: `lib/switchingLogic.ts` line 40 reads it.)
    * Types are compared by name in about 127 to 191 places. Adding a component means editing many files.
    * `App.tsx` (938 lines), `PropertiesEditor.tsx` (1,410), `useSimulation.ts` (812), and a 1,285-line tutorial overlay.
    * About 12 refs mirror React state to avoid stale closures. 92 call sites write project data directly. Project data is saved to browser storage on every change.
