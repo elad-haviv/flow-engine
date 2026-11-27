@@ -84,6 +84,10 @@ The scans checked earlier statements in the design documents against the code. F
 * **Components follow the code-based triage** from the concepts brief, except for the eight core components that you named. The rest is a proposal until you mark it.
 * **Features nobody used.** Blue Grid features that no real user relies on are not distinguished from those they do. Your marks are the only source for that.
 
+## Recommendations
+
+The Elephant's recommendation for every row is in [recommendations.md](../parity/recommendations.md): 317 rows recommended as proposed, 40 with a different decision, 25 flagged as the owner's call, and 28 with a different phase. Five fresh reviewers produced them by topic group, and the Elephant reconciled the conflicts between groups. Reasons marked *Unverified* were not checked against the Blue Grid code. The owner marks the rows in the [interactive checklist](https://claude.ai/artifact/1FLzpfZJtSiquFLY6bGPWQ).
+
 ## Next steps
 
 1. Owner marks the four slice files. Rows that conflict with the design, or that you want changed, get a note.
