@@ -28,7 +28,9 @@ export default tseslint.config(
   },
   {
     files: ["**/*.js", "**/*.mjs"],
-    languageOptions: { globals: { process: "readonly", console: "readonly" } },
+    languageOptions: {
+      globals: { process: "readonly", console: "readonly", URL: "readonly", window: "readonly", document: "readonly" },
+    },
   },
   {
     files: lowerLayers.map((g) => g + "/*.ts").concat(lowerLayers.map((g) => g + "/**/*.ts")),

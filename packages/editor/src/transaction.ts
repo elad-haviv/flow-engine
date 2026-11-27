@@ -10,11 +10,7 @@ import {
 } from "@flow/model";
 import { analyse, type EditorState, type Step } from "./state";
 
-export const command = <T extends CommandType>(
-  ctx: ApplyContext,
-  type: T,
-  payload: CommandPayloads[T],
-): Command<T> => ({
+const command = <T extends CommandType>(ctx: ApplyContext, type: T, payload: CommandPayloads[T]): Command<T> => ({
   id: ctx.newId(),
   type,
   v: 1,

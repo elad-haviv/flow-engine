@@ -50,6 +50,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@flow/editor':
+        specifier: workspace:*
+        version: link:../../packages/editor
       '@flow/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -59,6 +62,12 @@ importers:
       '@flow/platform':
         specifier: workspace:*
         version: link:../../packages/platform
+      '@flow/scene':
+        specifier: workspace:*
+        version: link:../../packages/scene
+      '@flow/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -135,6 +144,31 @@ importers:
       '@flow/scene':
         specifier: workspace:*
         version: link:../scene
+
+  packages/ui:
+    dependencies:
+      '@flow/catalog':
+        specifier: workspace:*
+        version: link:../catalog
+      '@flow/editor':
+        specifier: workspace:*
+        version: link:../editor
+      '@flow/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@flow/model':
+        specifier: workspace:*
+        version: link:../model
+      '@flow/scene':
+        specifier: workspace:*
+        version: link:../scene
+      react:
+        specifier: 19.2.0
+        version: 19.2.0
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.3
+        version: 19.3.3
 
   tools/eslint-plugin-flow: {}
 

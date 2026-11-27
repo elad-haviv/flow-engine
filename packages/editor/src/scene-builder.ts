@@ -69,7 +69,7 @@ function deviceElements(p: Project, status: Map<string, "error" | "warning">, re
     const el: SceneElement = {
       id: d.id,
       entityId: d.id,
-      kind: "device",
+      layer: "device",
       prims,
       bounds: { x: pos.x, y: pos.y, w: sym.w, h: sym.h + 32 },
     };
@@ -97,7 +97,7 @@ function wireElements(p: Project, expanded: string[], status: Map<string, "error
     const el: SceneElement = {
       id: w.id,
       entityId: w.id,
-      kind: "wire",
+      layer: "wire",
       prims: lines.map((l) => ({ t: "polyline", points: l, cls: "wire" })),
       bounds: pointsBounds(path, 4),
       path,

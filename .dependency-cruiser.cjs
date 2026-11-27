@@ -8,6 +8,7 @@ const layers = {
   scene: [],
   symbols: ["scene", "catalog"],
   editor: ["model", "catalog", "engine", "scene", "symbols"],
+  ui: ["model", "catalog", "editor", "scene", "i18n"],
 };
 const all = Object.keys(layers);
 

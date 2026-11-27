@@ -22,14 +22,21 @@ export interface Anchored {
   device: Device;
 }
 
-/** Where a terminal is drawn. A busbar end slides along the bar toward `toward`. */
-export function anchorOf(p: Project, terminalId: string, toward?: Point): Anchored | undefined {
+/** The device, its position, its symbol and the anchor a terminal sits at. */
+function placed(p: Project, terminalId: string) {
   const t = p.terminals.find((x) => x.id === terminalId);
   const device = t && p.devices.find((d) => d.id === t.deviceId);
   const pos = device && positionOf(p, device.id);
   const sym = device && symbolFor(device.kind);
   const a = t && sym?.anchors[t.role];
-  if (!device || !pos || !sym || !a) return undefined;
+  return device && pos && sym && a ? { device, pos, sym, a } : undefined;
+}
+
+/** Where a terminal is drawn. A busbar end slides along the bar toward `toward`. */
+export function anchorOf(p: Project, terminalId: string, toward?: Point): Anchored | undefined {
+  const f = placed(p, terminalId);
+  if (!f) return undefined;
+  const { device, pos, sym, a } = f;
   if (!sym.bar || !toward) return { p: { x: pos.x + a.p.x, y: pos.y + a.p.y }, side: a.side, device };
   const x = Math.max(pos.x + 6, Math.min(pos.x + sym.w - 6, toward.x));
   const below = toward.y > pos.y + sym.h / 2;
@@ -45,4 +52,35 @@ export function systemOf(p: Project, terminalId: string): "ac3" | "ac1" | "dc" |
   if (t.role === "out" && def.outputSystem) return def.outputSystem;
   const explicit = d.params["system"];
   return (typeof explicit === "string" ? explicit : def.systems[0]) as "ac3" | "ac1" | "dc" | "loop";
+}
+
+/** Terminal under a point: a terminal anchor within `radius`, or any point along a busbar for its bus terminal. */
+export function terminalAtPoint(p: Project, at: Point, radius = 12): string | undefined {
+  for (const t of p.terminals) {
+    const f = placed(p, t.id);
+    if (!f) continue;
+    const { pos, sym, a } = f;
+    const hit = sym.bar
+      ? at.x >= pos.x - radius &&
+        at.x <= pos.x + sym.w + radius &&
+        at.y >= pos.y - radius &&
+        at.y <= pos.y + sym.h + radius
+      : Math.hypot(at.x - (pos.x + a.p.x), at.y - (pos.y + a.p.y)) <= radius;
+    if (hit) return t.id;
+  }
+  return undefined;
+}
+
+export interface Marker {
+  terminalId: string;
+  p: Point;
+}
+/** Dots drawn on terminals while wiring. */
+export function terminalMarkers(p: Project): Marker[] {
+  const out: Marker[] = [];
+  for (const t of p.terminals) {
+    const a = anchorOf(p, t.id);
+    if (a) out.push({ terminalId: t.id, p: a.p });
+  }
+  return out;
 }

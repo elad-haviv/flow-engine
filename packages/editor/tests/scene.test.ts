@@ -20,7 +20,7 @@ describe("buildScene", () => {
   it("draws devices and wires, wires first, wire ends on the terminals", () => {
     const s = feeder();
     const sc = buildScene(s.project, { results: s.results });
-    expect(sc.elements.map((e) => e.kind)).toEqual(["wire", "device", "device"]);
+    expect(sc.elements.map((e) => e.layer)).toEqual(["wire", "device", "device"]);
     const w = sc.elements[0]!;
     expect(w.path![0]).toEqual({ x: 130, y: 100 });
     expect(w.path!.at(-1)).toEqual({ x: 130, y: 240 });
@@ -69,5 +69,20 @@ describe("buildScene", () => {
     const sc = buildScene(s.project);
     expect(visibleIn(sc, { x: 0, y: 0, w: 50, h: 50 })).toHaveLength(0);
     expect(visibleIn(sc, { x: 100, y: 40, w: 100, h: 100 }).length).toBeGreaterThan(0);
+  });
+});
+
+describe("terminal lookup", () => {
+  it("finds a terminal near its anchor and any point on a busbar", async () => {
+    const { terminalAtPoint, terminalMarkers } = await import("../src");
+    const s = feeder();
+    const out = s.project.terminals.find((t) => t.role === "out")!;
+    expect(terminalAtPoint(s.project, { x: 131, y: 101 })).toBe(out.id);
+    expect(terminalAtPoint(s.project, { x: 500, y: 500 })).toBeUndefined();
+    expect(terminalMarkers(s.project)).toHaveLength(2);
+    let b = createEditor();
+    b = reduce(b, { type: "place", kind: "busbar", x: 0, y: 100 }, ctx);
+    expect(terminalAtPoint(b.project, { x: 100, y: 104 })).toBe(b.project.terminals[0]!.id);
+    expect(terminalAtPoint(b.project, { x: 100, y: 150 })).toBeUndefined();
   });
 });

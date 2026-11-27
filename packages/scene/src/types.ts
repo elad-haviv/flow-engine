@@ -19,14 +19,14 @@ export type Prim =
   | { t: "polyline"; points: Point[]; cls?: string }
   | { t: "text"; x: number; y: number; text: string; anchor?: "start" | "middle" | "end"; cls?: string };
 
-export type SceneKind = "device" | "wire" | "annotation";
+export type SceneLayer = "device" | "wire" | "annotation";
 
 export interface SceneElement {
   /** Stable key for rendering */
   id: string;
   /** Model entity this element draws */
   entityId: string;
-  kind: SceneKind;
+  layer: SceneLayer;
   prims: Prim[];
   bounds: Rect;
   /** Worst problem on this entity, for the renderer */

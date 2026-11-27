@@ -72,11 +72,11 @@ describe("geometry", () => {
   });
   it("hit testing prefers the topmost and uses tolerance for wires", () => {
     const els: SceneElement[] = [
-      { id: "a", entityId: "a", kind: "device", prims: [], bounds: { x: 0, y: 0, w: 60, h: 60 } },
+      { id: "a", entityId: "a", layer: "device", prims: [], bounds: { x: 0, y: 0, w: 60, h: 60 } },
       {
         id: "w",
         entityId: "w",
-        kind: "wire",
+        layer: "wire",
         prims: [],
         bounds: { x: 0, y: 0, w: 100, h: 0 },
         path: [

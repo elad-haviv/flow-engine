@@ -1,7 +1,7 @@
 # Phase 2 spec: the editor
 
 * **Author:** Elad Haviv (owner), drafted with Claude Code
-* **Status:** Draft. Built in slices; each slice below says what is done and what needs people.
+* **Status:** Slices A to D built (see the [exit report](./phase-2-exit-report.md)). Built in slices; each slice below says what is done and what needs people.
 * **Date:** 2026-11-27
 * **Depends on:** [Phase 0](./phase-0-foundations.md), [Phase 1](./phase-1-engine.md). **Design:** [flow-engine.md](../designs/flow-engine.md).
 
@@ -32,10 +32,10 @@ A person who has never seen the tool places a source, a breaker and a load, conn
 
 | Slice | Content | Verified by | Status |
 | --- | --- | --- | --- |
-| A | `scene` (primitives, bounds, hit testing, spatial grid) and `symbols` (one drawing per catalog kind, terminal anchors, wire routing) | Unit tests: anchors, routing, hit tests, culling | In progress |
-| B | `editor` core: state, actions, tools, undo and redo, problems and fixes | Unit tests with fast-check on undo; fix tests | In progress |
-| C | `ui` and `apps/web`: SVG view, palette, property forms, problems panel, banner, language switch, save and open, guide | Playwright journeys | In progress |
-| D | Rendering limit measurement | A recorded number in the exit report | Planned |
+| A | `scene` (primitives, bounds, hit testing, spatial grid) and `symbols` (one drawing per catalog kind, terminal anchors, wire routing) | Unit tests: anchors, routing, hit tests, culling | Done |
+| B | `editor` core: state, actions, tools, undo and redo, problems and fixes | Unit tests with fast-check on undo; fix tests | Done |
+| C | `ui` and `apps/web`: SVG view, palette, property forms, problems panel, banner, language switch, save and open, guide | Playwright journeys | Done |
+| D | Rendering limit measurement | A recorded number in the exit report | Done |
 | E | Five-person first-feeder test | **Needs five people; cannot be done by Claude** | Open |
 
 ## Blue Grid parity rows in scope

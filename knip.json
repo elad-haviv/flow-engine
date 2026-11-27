@@ -1,8 +1,32 @@
 {
   "workspaces": {
-    ".": { "entry": ["scripts/*.mjs"], "ignoreDependencies": [] },
-    "packages/*": { "project": ["src/**/*.ts"] },
-    "tools/*": { "project": ["src/**/*.js"] }
+    ".": {
+      "entry": [
+        "scripts/*.mjs"
+      ],
+      "ignoreDependencies": []
+    },
+    "packages/*": {
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ]
+    },
+    "tools/*": {
+      "project": [
+        "src/**/*.js"
+      ]
+    },
+    "apps/web": {
+      "ignoreDependencies": [
+        "playwright"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}",
+        "e2e/*.mjs"
+      ]
+    }
   },
-  "ignore": ["tests/fixtures/**"]
+  "ignore": [
+    "tests/fixtures/**"
+  ]
 }

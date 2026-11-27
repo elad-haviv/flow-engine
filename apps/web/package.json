@@ -12,7 +12,10 @@
     "react-dom": "19.2.0",
     "@flow/model": "workspace:*",
     "@flow/i18n": "workspace:*",
-    "@flow/platform": "workspace:*"
+    "@flow/platform": "workspace:*",
+    "@flow/editor": "workspace:*",
+    "@flow/ui": "workspace:*",
+    "@flow/scene": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.3.3",

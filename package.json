@@ -17,7 +17,8 @@
     "test:cov": "vitest run --coverage",
     "verify": "pnpm typecheck && pnpm lint && pnpm check:markers && pnpm depcheck && pnpm dupcheck && pnpm unused && pnpm test:cov",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "e2e": "pnpm --filter @flow/web build && node apps/web/e2e/run.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

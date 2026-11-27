@@ -1,6 +1,8 @@
-import { direction, t, type Locale } from "@flow/i18n";
+import { direction, type Locale } from "@flow/i18n";
 import { useEffect, useState } from "react";
+import { BenchPage } from "./dev/BenchPage";
 import { StoragePage } from "./dev/StoragePage";
+import { Workbench } from "./Workbench";
 
 const initial = (): Locale => {
   try {
@@ -23,21 +25,8 @@ export function App() {
       /* ignore */
     }
   }, [locale]);
-  return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: 24, maxWidth: 720, margin: "0 auto" }}>
-      <h1>{t(locale, "app.name")}</h1>
-      <p id="build">
-        {t(locale, "app.version", { version: __VERSION__ })} · <code>{__COMMIT__}</code>
-      </p>
-      <label>
-        {t(locale, "app.language")}{" "}
-        <select value={locale} onChange={(e) => setLocale(e.target.value as Locale)}>
-          <option value="he">{t(locale, "lang.he")}</option>
-          <option value="en">{t(locale, "lang.en")}</option>
-        </select>
-      </label>
-      <p>{t(locale, "app.storageNote")}</p>
-      <StoragePage locale={locale} />
-    </main>
-  );
+  const dev = new URLSearchParams(location.search).get("dev");
+  if (dev === "storage") return <StoragePage locale={locale} />;
+  if (dev === "bench") return <BenchPage />;
+  return <Workbench locale={locale} setLocale={setLocale} />;
 }

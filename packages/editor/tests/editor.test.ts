@@ -174,3 +174,80 @@ describe("problems", () => {
     expect(ranks).toEqual([...ranks].sort());
   });
 });
+
+describe("keyboard shortcuts", () => {
+  it("maps keys to actions and ignores most keys while typing", async () => {
+    const { keyToAction } = await import("../src");
+    const k = (key: string, o: Partial<{ ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }> = {}) => ({
+      key,
+      ctrlKey: false,
+      metaKey: false,
+      shiftKey: false,
+      ...o,
+    });
+    expect(keyToAction(k("Escape"), true, [])).toEqual({ type: "cancel" });
+    expect(keyToAction(k("Delete"), false, ["a"])).toEqual({ type: "delete", ids: ["a"] });
+    expect(keyToAction(k("Delete"), true, ["a"])).toBeUndefined();
+    expect(keyToAction(k("Delete"), false, [])).toBeUndefined();
+    expect(keyToAction(k("z", { ctrlKey: true }), false, [])).toEqual({ type: "undo" });
+    expect(keyToAction(k("Z", { metaKey: true, shiftKey: true }), false, [])).toEqual({ type: "redo" });
+    expect(keyToAction(k("y", { ctrlKey: true }), false, [])).toEqual({ type: "redo" });
+    expect(keyToAction(k("q"), false, [])).toBeUndefined();
+  });
+});
+
+describe("edge cases", () => {
+  it("placing an unknown kind is rejected and keeps the state", () => {
+    const s = createEditor();
+    const r = run(s, { type: "place", kind: "zzz", x: 0, y: 0 });
+    expect(r.project).toBe(s.project);
+    expect(r.rejected).toBe("model.device.kind_unknown");
+  });
+  it("the default context makes ids and times", () => {
+    const c = makeContext();
+    expect(c.newId()).toHaveLength(26);
+    expect(c.now()).toMatch(/^\d{4}-/);
+  });
+  it("connecting to a missing terminal is rejected", () => {
+    const s = feeder();
+    const r = run(s, { type: "connect", from: s.project.terminals[0]!.id, to: "x".repeat(26) });
+    expect(r.rejected).toBe("model.wire.endpoint_missing");
+  });
+  it("default conductors follow the power system of the terminal", async () => {
+    const { systemOf } = await import("../src");
+    let s = run(
+      createEditor(),
+      { type: "place", kind: "rectifier", x: 0, y: 0 },
+      { type: "place", kind: "grid", x: 0, y: 100 },
+    );
+    const rect = (role: string) =>
+      s.project.terminals.find(
+        (t) => t.role === role && s.project.devices.find((d) => d.id === t.deviceId)!.kind === "rectifier",
+      )!.id;
+    expect(systemOf(s.project, rect("out"))).toBe("dc");
+    expect(systemOf(s.project, rect("in"))).toBe("ac3");
+    s = run(s, { type: "param", deviceId: s.project.devices[1]!.id, field: "system", value: "ac1" });
+    expect(systemOf(s.project, s.project.terminals.find((t) => t.deviceId === s.project.devices[1]!.id)!.id)).toBe(
+      "ac1",
+    );
+    expect(systemOf(s.project, "nope")).toBe("ac3");
+  });
+  it("a redo that no longer applies is dropped with a reason", () => {
+    let s = run(createEditor(), { type: "place", kind: "load", x: 0, y: 0 });
+    s = run(s, { type: "undo" });
+    const broken = {
+      ...s,
+      redo: [{ ...s.redo[0]!, commands: [{ ...s.redo[0]!.commands[0]!, type: "nope" as never }] }],
+    };
+    const r = run(broken, { type: "redo" });
+    expect(r.redo).toEqual([]);
+    expect(r.rejected).toBe("model.command.unknown");
+  });
+  it("a batch of edits that fails midway leaves nothing behind", () => {
+    const s = feeder();
+    const load = s.project.devices.find((d) => d.name === "L1")!;
+    const r = run(s, { type: "delete", ids: [load.id, load.id] });
+    expect(r.project).toBe(s.project);
+    expect(r.rejected).toBe("model.device.not_found");
+  });
+});
