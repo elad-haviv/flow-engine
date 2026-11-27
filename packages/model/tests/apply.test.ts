@@ -38,6 +38,11 @@ describe("commands", () => {
       CODES.deviceParamInvalid,
     );
   });
+  it("device.rename and its rejection", () => {
+    const p = twoDevices();
+    expect(run(p, cmd("device.rename", { deviceId: p.devices[0]!.id, name: "Main" })).devices[0]!.name).toBe("Main");
+    expect(rej(p, cmd("device.rename", { deviceId: "x".repeat(26), name: "n" }))).toBe(CODES.deviceNotFound);
+  });
   it("device.setParam, setState and rejections", () => {
     const p = twoDevices();
     const id = p.devices[0]!.id;
@@ -89,6 +94,20 @@ describe("commands", () => {
     expect(
       rej(w, cmd("cable.setConductor", { cableId: "x".repeat(26), role: "L", field: "material", value: "Cu" })),
     ).toBe(CODES.cableNotFound);
+  });
+  it("cable.set length and installation, with rejections", () => {
+    const p = twoDevices();
+    const w = run(p, wireCmd(p));
+    const cid = w.cables[0]!.id;
+    expect(run(w, cmd("cable.set", { cableId: cid, field: "lengthM", value: 55 })).cables[0]!.lengthM).toBe(55);
+    expect(run(w, cmd("cable.set", { cableId: cid, field: "installation", value: "E" })).cables[0]!.installation).toBe(
+      "E",
+    );
+    expect(rej(w, cmd("cable.set", { cableId: cid, field: "lengthM", value: -1 }))).toBe(CODES.cableConductorInvalid);
+    expect(rej(w, cmd("cable.set", { cableId: cid, field: "installation", value: "" }))).toBe(
+      CODES.cableConductorInvalid,
+    );
+    expect(rej(w, cmd("cable.set", { cableId: "x".repeat(26), field: "lengthM", value: 1 }))).toBe(CODES.cableNotFound);
   });
   it("device.remove removes its wires; inverse restores exactly", () => {
     const p = twoDevices();

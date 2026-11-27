@@ -25,11 +25,13 @@ const batchHandler: Handler<"batch"> = (p, pl, ctx) => {
 const HANDLERS: Partial<Record<CommandType, AnyHandler>> = {
   "project.rename": core.projectRename as AnyHandler,
   "device.add": core.deviceAdd as AnyHandler,
+  "device.rename": core.deviceRename as AnyHandler,
   "device.remove": core.deviceRemove as AnyHandler,
   "device.setParam": core.deviceSetParam as AnyHandler,
   "device.setState": core.deviceSetState as AnyHandler,
   "wire.add": core.wireAdd as AnyHandler,
   "wire.remove": core.wireRemove as AnyHandler,
+  "cable.set": core.cableSet as AnyHandler,
   "cable.setConductor": core.cableSetConductor as AnyHandler,
   "junction.promote": misc.junctionPromote as AnyHandler,
   "junction.demote": misc.junctionDemote as AnyHandler,

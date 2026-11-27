@@ -88,6 +88,24 @@ importers:
         specifier: workspace:*
         version: link:../model
 
+  packages/editor:
+    dependencies:
+      '@flow/catalog':
+        specifier: workspace:*
+        version: link:../catalog
+      '@flow/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@flow/model':
+        specifier: workspace:*
+        version: link:../model
+      '@flow/scene':
+        specifier: workspace:*
+        version: link:../scene
+      '@flow/symbols':
+        specifier: workspace:*
+        version: link:../symbols
+
   packages/engine:
     dependencies:
       '@flow/catalog':
@@ -106,6 +124,17 @@ importers:
         version: 4.6.7
 
   packages/platform: {}
+
+  packages/scene: {}
+
+  packages/symbols:
+    dependencies:
+      '@flow/catalog':
+        specifier: workspace:*
+        version: link:../catalog
+      '@flow/scene':
+        specifier: workspace:*
+        version: link:../scene
 
   tools/eslint-plugin-flow: {}
 

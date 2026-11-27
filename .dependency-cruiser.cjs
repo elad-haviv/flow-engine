@@ -5,6 +5,9 @@ const layers = {
   platform: [],
   catalog: ["model"],
   engine: ["model", "catalog"],
+  scene: [],
+  symbols: ["scene", "catalog"],
+  editor: ["model", "catalog", "engine", "scene", "symbols"],
 };
 const all = Object.keys(layers);
 

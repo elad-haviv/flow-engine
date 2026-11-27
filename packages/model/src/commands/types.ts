@@ -11,6 +11,7 @@ export interface CommandPayloads {
   "project.create": { name: string; locale: "he" | "en"; profile: { id: string; edition: string } };
   "project.rename": { name: string };
   "device.add": { kind: string; name: string; params: Record<string, ParamValue> };
+  "device.rename": { deviceId: string; name: string };
   "device.remove": { deviceId: string };
   "device.setParam": { deviceId: string; field: string; value: ParamValue };
   "device.setState": { deviceId: string; state: "closed" | "open" | "grounded" };
@@ -20,6 +21,7 @@ export interface CommandPayloads {
     to: Endpoint;
   };
   "wire.remove": { wireId: string };
+  "cable.set": { cableId: string; field: "lengthM" | "installation"; value: string | number };
   "cable.setConductor": {
     cableId: string;
     role: string;

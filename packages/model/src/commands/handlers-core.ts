@@ -22,6 +22,13 @@ export const deviceAdd: Handler<"device.add"> = (_p, pl, ctx) => {
   return ok([add("devices", device), ...tChanges.map((t) => add("terminals", t))]);
 };
 
+export const deviceRename: Handler<"device.rename"> = (p, pl) => {
+  const d = find<Device>(p, "devices", pl.deviceId);
+  return d
+    ? ok([update(p, "devices", d.id, { ...d, name: pl.name } as Device)])
+    : fail(CODES.deviceNotFound, [pl.deviceId]);
+};
+
 export const deviceRemove: Handler<"device.remove"> = (p, pl) => {
   const d = find<Device>(p, "devices", pl.deviceId);
   if (!d) return fail(CODES.deviceNotFound, [pl.deviceId]);
@@ -88,4 +95,15 @@ export const cableSetConductor: Handler<"cable.setConductor"> = (p, pl) => {
   if (!ok2) return fail(CODES.cableConductorInvalid, [c.id]);
   const conductors = c.conductors.map((x, k) => (k === i ? (next as typeof x) : x));
   return ok([update(p, "cables", c.id, { ...c, conductors } as Cable)]);
+};
+
+export const cableSet: Handler<"cable.set"> = (p, pl) => {
+  const c = find<Cable>(p, "cables", pl.cableId);
+  if (!c) return fail(CODES.cableNotFound, [pl.cableId]);
+  const valid =
+    pl.field === "lengthM"
+      ? typeof pl.value === "number" && pl.value >= 0
+      : typeof pl.value === "string" && pl.value !== "";
+  if (!valid) return fail(CODES.cableConductorInvalid, [c.id]);
+  return ok([update(p, "cables", c.id, { ...c, [pl.field]: pl.value } as Cable)]);
 };
