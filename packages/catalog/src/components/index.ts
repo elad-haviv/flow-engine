@@ -1,4 +1,5 @@
 import type { ParamValue } from "@flow/model";
+
 import { DEFINITIONS } from "./definitions";
 import type { ComponentDef, ParamSpec } from "./types";
 
@@ -8,7 +9,8 @@ export { DEFINITIONS };
 const byKind = new Map(DEFINITIONS.map((d) => [d.kind, d]));
 export const getComponent = (kind: string): ComponentDef | undefined => byKind.get(kind);
 
-const numberOf = (v: ParamValue): number | undefined => (typeof v === "number" ? v : typeof v === "object" ? v.v : undefined);
+const numberOf = (v: ParamValue): number | undefined =>
+  typeof v === "number" ? v : typeof v === "object" ? v.v : undefined;
 
 /** Whether a value fits the parameter's spec (type, range, options). */
 export function paramValid(kind: string, field: string, value: ParamValue): boolean {
@@ -25,4 +27,5 @@ export function paramValid(kind: string, field: string, value: ParamValue): bool
 export const stateValid = (kind: string, state: string): boolean =>
   (byKind.get(kind)?.states as string[] | undefined)?.includes(state) ?? false;
 
-export const terminalsFor = (kind: string) => byKind.get(kind)?.terminals.map((role) => ({ role, conductors: [] as string[] }));
+export const terminalsFor = (kind: string) =>
+  byKind.get(kind)?.terminals.map((role) => ({ role, conductors: [] as string[] }));

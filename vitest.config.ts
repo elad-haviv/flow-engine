@@ -11,7 +11,7 @@ export default defineConfig({
     testTimeout: 60000,
     coverage: {
       provider: "v8",
-      include: ["packages/model/src/**", "packages/catalog/src/**"],
+      include: ["packages/model/src/**", "packages/catalog/src/**", "packages/engine/src/**"],
       thresholds: { branches: 85 },
     },
   },

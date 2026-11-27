@@ -1,0 +1,66 @@
+{
+ "id": "SC-002",
+ "title": "Minimum fault current at the end of a 50 m, 16 mm2 cable behind the SC-001 transformer",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): c_min 1.0 (20 kV) and 0.95 (400 V), cable resistance at 80 degrees C, reactance 0.08 mOhm/m (assumption), K_T unchanged.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 20000,
+     "shortCircuitPower": 250000000.0
+    }
+   },
+   {
+    "name": "T",
+    "kind": "transformer",
+    "params": {
+     "ratedPower": 1000000.0,
+     "primaryVoltage": 20000,
+     "secondaryVoltage": 400,
+     "ukPercent": 6,
+     "prPercent": 1
+    }
+   },
+   {
+    "name": "B",
+    "kind": "busbar",
+    "params": {}
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "T.in",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "T.out",
+    "to": "B.bus",
+    "lengthM": 50,
+    "section": 16,
+    "role": "L1"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "ik3Min",
+   "at": "B.bus",
+   "value": 3153.9616956415875,
+   "tolerance": 0.003
+  },
+  {
+   "select": "ik2Min",
+   "at": "B.bus",
+   "value": 2731.4109509886584,
+   "tolerance": 0.003
+  }
+ ]
+}

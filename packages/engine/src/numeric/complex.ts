@@ -1,4 +1,7 @@
-export interface Complex { re: number; im: number }
+export interface Complex {
+  re: number;
+  im: number;
+}
 
 export const C = (re: number, im = 0): Complex => ({ re, im });
 export const ZERO: Complex = C(0);

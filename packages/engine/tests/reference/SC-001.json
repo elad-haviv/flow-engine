@@ -1,0 +1,66 @@
+{
+ "id": "SC-001",
+ "title": "Three-phase fault at 400 V behind a 1000 kVA, 6 percent transformer on a 250 MVA, 20 kV source",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): Z_Q = 1.10*U^2/S''k, X_Q = Z_Q/sqrt(1.01), R_Q = 0.1 X_Q, referred to 400 V; Z_T = uk*U^2/Sr, K_T = 0.95*1.05/(1+0.6 x_T); I''k = 1.05*400/(sqrt3*|Z_Q+K_T Z_T|); kappa = 1.02+0.98 exp(-3R/X). Result about 24.4 kA.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 20000,
+     "shortCircuitPower": 250000000.0
+    }
+   },
+   {
+    "name": "T",
+    "kind": "transformer",
+    "params": {
+     "ratedPower": 1000000.0,
+     "primaryVoltage": 20000,
+     "secondaryVoltage": 400,
+     "ukPercent": 6,
+     "prPercent": 1
+    }
+   },
+   {
+    "name": "B",
+    "kind": "busbar",
+    "params": {}
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "T.in",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "T.out",
+    "to": "B.bus",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "ik3Max",
+   "at": "B.bus",
+   "value": 24369.987030537,
+   "tolerance": 0.002
+  },
+  {
+   "select": "ip",
+   "at": "B.bus",
+   "value": 55797.25043312085,
+   "tolerance": 0.005
+  }
+ ]
+}

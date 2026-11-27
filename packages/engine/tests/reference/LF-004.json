@@ -1,0 +1,86 @@
+{
+ "id": "LF-004",
+ "title": "DC with two sources: 48 V battery and 50 V array feeding a 100 W load through 10 m, 10 mm2 each",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): KCL at the bus with two voltage sources and a constant-power load, round-trip resistance 2*r*L at 70 degrees C. The battery is charged (negative power).",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "B",
+    "kind": "battery",
+    "params": {
+     "voltage": 48
+    }
+   },
+   {
+    "name": "S",
+    "kind": "solar_array",
+    "params": {
+     "voltage": 50,
+     "ratedPower": 5000
+    }
+   },
+   {
+    "name": "BB",
+    "kind": "busbar",
+    "params": {
+     "system": "dc"
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "system": "dc",
+     "power": 100,
+     "powerFactor": 1
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "B.out",
+    "to": "BB.bus",
+    "lengthM": 10,
+    "section": 10,
+    "role": "DC+"
+   },
+   {
+    "from": "S.out",
+    "to": "BB.bus",
+    "lengthM": 10,
+    "section": 10,
+    "role": "DC+"
+   },
+   {
+    "from": "BB.bus",
+    "to": "L.in",
+    "lengthM": 0,
+    "section": 10,
+    "role": "DC+"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "loadVoltage",
+   "device": "L",
+   "value": 48.95786405943904,
+   "tolerance": 0.0005
+  },
+  {
+   "select": "sourceP",
+   "device": "B",
+   "value": -1114.3970789916032,
+   "tolerance": 0.002
+  },
+  {
+   "select": "sourceP",
+   "device": "S",
+   "value": 1262.9589291109771,
+   "tolerance": 0.002
+  }
+ ]
+}

@@ -1,0 +1,71 @@
+{
+ "id": "CS-004",
+ "title": "Cable sizing fails on I2: fuse (k2 1.6) rated 58 A: 92.8 A exceeds 1.45 * 60 = 87 A",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): ",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 5000000.0
+    }
+   },
+   {
+    "name": "BR",
+    "kind": "fuse",
+    "params": {
+     "ratedCurrent": 58,
+     "breakingCapacity": 50000,
+     "clearTime": 0.005
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "power": 20000,
+     "powerFactor": 0.9
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "BR.in",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "BR.out",
+    "to": "L.in",
+    "lengthM": 30,
+    "section": 10,
+    "role": "L1",
+    "material": "Cu"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "cablePass",
+   "field": "capacity",
+   "value": true
+  },
+  {
+   "select": "cablePass",
+   "field": "i2",
+   "value": false
+  },
+  {
+   "select": "diag",
+   "code": "engine.cable.i2_exceeds_limit",
+   "value": true
+  }
+ ]
+}

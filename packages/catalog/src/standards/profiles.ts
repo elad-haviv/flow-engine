@@ -14,7 +14,8 @@ const c = (tol: 6 | 10) => ({ lvMax: tol === 6 ? 1.05 : 1.1, lvMin: 0.95, mvMax:
 
 export const profiles: StandardTable<Record<Profile["id"], Profile>> = {
   id: "profiles",
-  source: "IEC 60909-0 table 1 (c factors); voltage-drop limits are the drafter's assumption and need the owner's source",
+  source:
+    "IEC 60909-0 table 1 (c factors); voltage-drop limits are the drafter's assumption and need the owner's source",
   edition: "latest at entry",
   clause: "IEC 60909-0 section 3.3; IEC 60364-5-52 annex G for the drop limit",
   dateTaken: "2026-11-27",

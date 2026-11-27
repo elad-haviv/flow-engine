@@ -1,9 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { DEFINITIONS, SECTIONS_MM2, ampacity, conductors, getComponent, lookupAmpacity, paramValid, profiles, stateValid, terminalsFor } from "../src";
+import {
+  DEFINITIONS,
+  SECTIONS_MM2,
+  ampacity,
+  conductors,
+  getComponent,
+  lookupAmpacity,
+  paramValid,
+  profiles,
+  stateValid,
+  terminalsFor,
+} from "../src";
 
 describe("components", () => {
   it("has the eight core components and about twenty in total", () => {
-    for (const k of ["grid", "generator", "breaker", "busbar", "transformer", "disconnector", "earthing_disconnector", "load"]) expect(getComponent(k), k).toBeDefined();
+    for (const k of [
+      "grid",
+      "generator",
+      "breaker",
+      "busbar",
+      "transformer",
+      "disconnector",
+      "earthing_disconnector",
+      "load",
+    ])
+      expect(getComponent(k), k).toBeDefined();
     expect(DEFINITIONS.length).toBeGreaterThanOrEqual(19);
     expect(DEFINITIONS.length).toBeLessThanOrEqual(24);
   });
@@ -13,7 +34,11 @@ describe("components", () => {
       expect(d.terminals.length, d.kind).toBeGreaterThan(0);
       expect(d.systems.length, d.kind).toBeGreaterThan(0);
       expect(new Set(d.params.map((p) => p.name)).size, d.kind).toBe(d.params.length);
-      for (const p of d.params) expect(p.required || p.default !== undefined || p.name === "system" || p.name === "voltage", `${d.kind}.${p.name}`).toBe(true);
+      for (const p of d.params)
+        expect(
+          p.required || p.default !== undefined || p.name === "system" || p.name === "voltage",
+          `${d.kind}.${p.name}`,
+        ).toBe(true);
     }
   });
   it("validates parameters and states", () => {

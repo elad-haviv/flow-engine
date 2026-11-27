@@ -1,0 +1,128 @@
+{
+ "id": "LP-001",
+ "title": "Series loop: 6.6 A, five 30 V lamps, six 40 m, 6 mm2 sections",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): U = sum of lamp voltages + I * sum of cable resistances at 70 degrees C.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 1000000000.0
+    }
+   },
+   {
+    "name": "R",
+    "kind": "cc_regulator",
+    "params": {
+     "current": 6.6,
+     "maxVoltage": 300
+    }
+   },
+   {
+    "name": "S1",
+    "kind": "series_load",
+    "params": {
+     "voltage": 30
+    }
+   },
+   {
+    "name": "S2",
+    "kind": "series_load",
+    "params": {
+     "voltage": 30
+    }
+   },
+   {
+    "name": "S3",
+    "kind": "series_load",
+    "params": {
+     "voltage": 30
+    }
+   },
+   {
+    "name": "S4",
+    "kind": "series_load",
+    "params": {
+     "voltage": 30
+    }
+   },
+   {
+    "name": "S5",
+    "kind": "series_load",
+    "params": {
+     "voltage": 30
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "R.in",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "R.out",
+    "to": "S1.in",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   },
+   {
+    "from": "S1.out",
+    "to": "S2.in",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   },
+   {
+    "from": "S2.out",
+    "to": "S3.in",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   },
+   {
+    "from": "S3.out",
+    "to": "S4.in",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   },
+   {
+    "from": "S4.out",
+    "to": "S5.in",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   },
+   {
+    "from": "S5.out",
+    "to": "R.return",
+    "lengthM": 40,
+    "section": 6,
+    "role": "L"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "loopVoltage",
+   "device": "R",
+   "value": 155.446018116,
+   "tolerance": 0.0005
+  },
+  {
+   "select": "loopPower",
+   "device": "R",
+   "value": 1025.9437195656,
+   "tolerance": 0.0005
+  }
+ ]
+}

@@ -1,1 +1,1 @@
-{ "extends": "./tsconfig.base.json", "compilerOptions": { "outDir": "dist/cross", "rootDir": "." , "noEmit": false}, "include": ["tests/cross"], "references": [{"path":"packages/model"},{"path":"packages/i18n"}] }
+{"extends": "./tsconfig.base.json", "compilerOptions": {"outDir": "dist/cross", "rootDir": ".", "noEmit": false}, "include": ["tests/cross"], "references": [{"path": "packages/model"}, {"path": "packages/i18n"}, {"path": "packages/engine"}]}

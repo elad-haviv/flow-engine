@@ -17,7 +17,11 @@ describe("power flow", () => {
   });
   it("sweep and Newton agree on a radial network", () => {
     const nodes = [slack, load(0.05, 0.02), load(0.08, 0.03), load(0.02)];
-    const br: PfBranch[] = [{ from: 0, to: 1, z: C(0.01, 0.005) }, { from: 1, to: 2, z: C(0.02, 0.01) }, { from: 1, to: 3, z: C(0.03, 0.01) }];
+    const br: PfBranch[] = [
+      { from: 0, to: 1, z: C(0.01, 0.005) },
+      { from: 1, to: 2, z: C(0.02, 0.01) },
+      { from: 1, to: 3, z: C(0.03, 0.01) },
+    ];
     expect(isRadial(4, br, nodes)).toBe(true);
     const a = sweep(nodes, br);
     const b = newton(nodes, br);
@@ -26,15 +30,30 @@ describe("power flow", () => {
   });
   it("solves a meshed network and conserves power", () => {
     const nodes = [slack, load(0.04), load(0.06, 0.02), load(0.03)];
-    const br: PfBranch[] = [{ from: 0, to: 1, z: C(0.01, 0.01) }, { from: 1, to: 2, z: C(0.02, 0.01) }, { from: 2, to: 3, z: C(0.02, 0.01) }, { from: 3, to: 0, z: C(0.015, 0.01) }];
+    const br: PfBranch[] = [
+      { from: 0, to: 1, z: C(0.01, 0.01) },
+      { from: 1, to: 2, z: C(0.02, 0.01) },
+      { from: 2, to: 3, z: C(0.02, 0.01) },
+      { from: 3, to: 0, z: C(0.015, 0.01) },
+    ];
     expect(isRadial(4, br, nodes)).toBe(false);
     const r = solvePowerFlow(nodes, br);
     expect(r.method).toBe("newton");
     expect(r.converged).toBe(true);
     let loss = 0;
-    for (const b of br) { const dv = sub(r.v[b.from]!, r.v[b.to]!); const i = mul(dv, { re: b.z.re / (b.z.re ** 2 + b.z.im ** 2), im: -b.z.im / (b.z.re ** 2 + b.z.im ** 2) }); loss += (abs(i) ** 2) * b.z.re; }
+    for (const b of br) {
+      const dv = sub(r.v[b.from]!, r.v[b.to]!);
+      const i = mul(dv, { re: b.z.re / (b.z.re ** 2 + b.z.im ** 2), im: -b.z.im / (b.z.re ** 2 + b.z.im ** 2) });
+      loss += abs(i) ** 2 * b.z.re;
+    }
     let slackP = 0;
-    for (const b of br) if (b.from === 0 || b.to === 0) { const o = b.from === 0 ? b.to : b.from; const dv = sub(r.v[0]!, r.v[o]!); const y = { re: b.z.re / (b.z.re ** 2 + b.z.im ** 2), im: -b.z.im / (b.z.re ** 2 + b.z.im ** 2) }; slackP += mul(r.v[0]!, conj(mul(dv, y))).re; }
+    for (const b of br)
+      if (b.from === 0 || b.to === 0) {
+        const o = b.from === 0 ? b.to : b.from;
+        const dv = sub(r.v[0]!, r.v[o]!);
+        const y = { re: b.z.re / (b.z.re ** 2 + b.z.im ** 2), im: -b.z.im / (b.z.re ** 2 + b.z.im ** 2) };
+        slackP += mul(r.v[0]!, conj(mul(dv, y))).re;
+      }
     expect(slackP).toBeCloseTo(0.13 + loss, 8);
   });
   it("reports non-convergence for an impossible load", () => {

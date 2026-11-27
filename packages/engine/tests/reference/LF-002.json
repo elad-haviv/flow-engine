@@ -1,0 +1,98 @@
+{
+ "id": "LF-002",
+ "title": "Meshed ring of three loads fed from one source",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): Gauss-Seidel on the nodal equations, per phase; slack power is the sum of loads plus losses.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 1000000000.0
+    }
+   },
+   {
+    "name": "L1",
+    "kind": "load",
+    "params": {
+     "power": 15000,
+     "powerFactor": 0.9061831399952655
+    }
+   },
+   {
+    "name": "L2",
+    "kind": "load",
+    "params": {
+     "power": 25000,
+     "powerFactor": 0.9408874118687268
+    }
+   },
+   {
+    "name": "L3",
+    "kind": "load",
+    "params": {
+     "power": 10000,
+     "powerFactor": 1
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "L1.in",
+    "lengthM": 80,
+    "section": 35,
+    "role": "L1"
+   },
+   {
+    "from": "L1.in",
+    "to": "L2.in",
+    "lengthM": 60,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "L2.in",
+    "to": "L3.in",
+    "lengthM": 70,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "L3.in",
+    "to": "G.out",
+    "lengthM": 90,
+    "section": 35,
+    "role": "L1"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "loadVoltage",
+   "device": "L1",
+   "value": 396.56165153172685,
+   "tolerance": 0.0005
+  },
+  {
+   "select": "loadVoltage",
+   "device": "L2",
+   "value": 394.9592774493781,
+   "tolerance": 0.0005
+  },
+  {
+   "select": "loadVoltage",
+   "device": "L3",
+   "value": 396.8742247815053,
+   "tolerance": 0.0005
+  },
+  {
+   "select": "method",
+   "value": "newton"
+  }
+ ]
+}

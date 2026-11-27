@@ -1,0 +1,94 @@
+{
+ "id": "CS-001",
+ "title": "Cable sizing passes: 10 mm2 Cu PVC, 50 A breaker, 20 kW load",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): Iz = 60 A (table), required section = Ik*sqrt(t)/k with Ik = Sk/(sqrt3*400) = 7217 A, t = 5 ms, k = 115.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 5000000.0
+    }
+   },
+   {
+    "name": "BR",
+    "kind": "breaker",
+    "params": {
+     "ratedCurrent": 50,
+     "breakingCapacity": 50000,
+     "clearTime": 0.005
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "power": 20000,
+     "powerFactor": 0.9
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "BR.in",
+    "lengthM": 0,
+    "section": 25,
+    "role": "L1"
+   },
+   {
+    "from": "BR.out",
+    "to": "L.in",
+    "lengthM": 30,
+    "section": 10,
+    "role": "L1",
+    "material": "Cu"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "cable",
+   "field": "iz",
+   "value": 60,
+   "tolerance": 0.001
+  },
+  {
+   "select": "cable",
+   "field": "ib",
+   "value": 32.1,
+   "tolerance": 0.02
+  },
+  {
+   "select": "cable",
+   "field": "requiredSection",
+   "value": 4.437556208542012,
+   "tolerance": 0.01
+  },
+  {
+   "select": "cablePass",
+   "field": "current",
+   "value": true
+  },
+  {
+   "select": "cablePass",
+   "field": "capacity",
+   "value": true
+  },
+  {
+   "select": "cablePass",
+   "field": "i2",
+   "value": true
+  },
+  {
+   "select": "cablePass",
+   "field": "thermal",
+   "value": true
+  }
+ ]
+}

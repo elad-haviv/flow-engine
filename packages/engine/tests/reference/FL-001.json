@@ -1,0 +1,56 @@
+{
+ "id": "FL-001",
+ "title": "A floating island is reported and not calculated",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): ",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 1000000000.0
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "power": 1000,
+     "powerFactor": 1
+    }
+   },
+   {
+    "name": "L2",
+    "kind": "load",
+    "params": {
+     "power": 1000,
+     "powerFactor": 1
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "L.in",
+    "lengthM": 10,
+    "section": 25,
+    "role": "L1"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "diag",
+   "code": "engine.island.no_source",
+   "value": true
+  },
+  {
+   "select": "loadCount",
+   "value": 1
+  }
+ ]
+}

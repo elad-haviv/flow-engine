@@ -1,0 +1,62 @@
+{
+ "id": "CV-001",
+ "title": "Rectifier chain: 1 kW DC load behind a 95 percent rectifier on a 400 V supply",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): P_in = 1000/0.95 at the rectifier; the grid supplies that plus the loss in a 1 m, 16 mm2 cable (phasor fixed point).",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "voltage": 400,
+     "shortCircuitPower": 1000000000.0
+    }
+   },
+   {
+    "name": "R",
+    "kind": "rectifier",
+    "params": {
+     "outputVoltage": 48,
+     "efficiency": 0.95,
+     "powerFactor": 0.95
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "system": "dc",
+     "power": 1000,
+     "powerFactor": 1
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "R.in",
+    "lengthM": 1,
+    "section": 16,
+    "role": "L1"
+   },
+   {
+    "from": "R.out",
+    "to": "L.in",
+    "lengthM": 0,
+    "section": 16,
+    "role": "DC+"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "sourceP",
+   "device": "G",
+   "value": 1052.6414724092833,
+   "tolerance": 0.0005
+  }
+ ]
+}

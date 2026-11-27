@@ -1,0 +1,47 @@
+{
+ "id": "LF-003",
+ "title": "Single-phase: 50 m, 4 mm2 out-and-back to a 2 kW load at 230 V",
+ "profile": "il",
+ "source": "Hand calculation, independent of the engine code (python, standard library only): Closed form: V = (V0 + sqrt(V0^2 - 4 P R)) / 2 with R = 2 r L at 70 degrees C (reactance does not matter at unity power factor with this model only approximately; tolerance 0.05 percent).",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "G",
+    "kind": "grid",
+    "params": {
+     "system": "ac1",
+     "voltage": 230,
+     "shortCircuitPower": 100000000.0
+    }
+   },
+   {
+    "name": "L",
+    "kind": "load",
+    "params": {
+     "system": "ac1",
+     "power": 2000,
+     "powerFactor": 1
+    }
+   }
+  ],
+  "wires": [
+   {
+    "from": "G.out",
+    "to": "L.in",
+    "lengthM": 50,
+    "section": 4,
+    "role": "L"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "loadVoltage",
+   "device": "L",
+   "value": 225.42444102190422,
+   "tolerance": 0.0005
+  }
+ ]
+}
