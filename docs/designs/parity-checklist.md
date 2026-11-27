@@ -1,8 +1,12 @@
 # Blue Grid parity checklist
 
 * **Author:** Elad Haviv (owner), drafted with Claude Code
-* **Status:** Draft, awaiting owner review
+* **Status:** Owner decisions recorded, by delegation (every row follows the Elephant's recommendation)
 * **Date:** 2026-11-27
+
+## Decisions
+
+On 2026-11-27 the owner chose to follow the Elephant's recommendation on every row: 317 accepted as proposed, 40 changed to a different decision. The 25 rows that were the owner's own call were taken by delegation, not by review, and are listed in [recommendations.md](../parity/recommendations.md). They can be reversed in the [checklist page](https://claude.ai/artifact/1FLzpfZJtSiquFLY6bGPWQ) or by telling the Elephant.
 
 ## Purpose
 

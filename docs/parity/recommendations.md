@@ -1,6 +1,6 @@
 # Recommendations on the Blue Grid parity checklist
 
-*Generated from `data/rows.json`. Five fresh reviewers each evaluated a topic group of rows against the owner's decisions and the design; duplicates were reconciled afterwards (see below). These are recommendations, not decisions: the owner marks each row in the checklist page.*
+*Adopted by the owner on 2026-11-27 for every row. Generated from `data/rows.json`. Five fresh reviewers each evaluated a topic group of rows against the owner's decisions and the design; duplicates were reconciled afterwards (see below). These are recommendations, not decisions: the owner marks each row in the checklist page.*
 
 ## Summary
 
