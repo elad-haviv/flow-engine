@@ -118,7 +118,7 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
     () => buildScene(state.project, { results: state.results, expanded: state.expanded, hidden: state.hidden }),
     [state.project, state.results, state.expanded, state.hidden],
   );
-  const documents = useDocuments(locale, state.project, state.results, scene);
+  const documents = useDocuments(locale, state.project, state.results, scene, state.selection, state.profile);
   const problems = useMemo(() => problemsOf(state.results), [state.results]);
   const markers = useMemo(() => terminalMarkers(state.project), [state.project]);
 

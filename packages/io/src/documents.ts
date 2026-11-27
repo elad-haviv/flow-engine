@@ -61,3 +61,32 @@ export function boqCsv(
   ];
   return toCsv([head, ...body, ...foot]);
 }
+
+interface PlanStep {
+  n: number;
+  action: string;
+  deviceId?: string;
+}
+export interface PlanLike {
+  isolate: PlanStep[];
+  restore: PlanStep[];
+  violations: Array<{ code: string; deviceIds: string[] }>;
+}
+
+/** Switching order as CSV: the isolation steps, then the restore steps, then any problems. */
+export function switchingCsv(plan: PlanLike, nameOf: (id: string) => string, t: T): string {
+  const steps = (title: string, list: PlanStep[]): Cell[][] =>
+    list.map((s) => [title, s.n, t(`sw.action.${s.action}`), s.deviceId ? nameOf(s.deviceId) : ""]);
+  const problems = plan.violations.map((v): Cell[] => [
+    t("sw.violations"),
+    "",
+    t(`sw.violation.${v.code}`),
+    v.deviceIds.map(nameOf).join(" "),
+  ]);
+  return toCsv([
+    [t("doc.col.kind"), "#", t("doc.col.description"), t("doc.col.name")],
+    ...steps(t("sw.isolate"), plan.isolate),
+    ...steps(t("sw.restore"), plan.restore),
+    ...problems,
+  ]);
+}

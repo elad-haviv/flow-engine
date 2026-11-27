@@ -1,5 +1,6 @@
 import { t, type Locale } from "@flow/i18n";
-import { boqCsv, parsePriceList, scheduleCsv, toDxf } from "@flow/io";
+import { boqCsv, parsePriceList, scheduleCsv, switchingCsv, toDxf } from "@flow/io";
+import { switchingPlan } from "@flow/engine";
 import type { Project } from "@flow/model";
 import type { Results } from "@flow/engine";
 import type { Scene } from "@flow/scene";
@@ -21,6 +22,8 @@ export function useDocuments(
   project: Project,
   results: Results,
   scene: Scene,
+  selection: string[],
+  profile: "il" | "iec",
 ): { open: () => void; dialog: ReactNode } {
   const [isOpen, setOpen] = useState(false);
   const [lists, setLists] = useState<PriceList[]>([]);
@@ -31,15 +34,19 @@ export function useDocuments(
 
   const docs = useMemo(() => {
     if (!isOpen) return undefined;
+    const targets = selection.filter((id) => project.devices.some((d) => d.id === id));
     return {
+      targets,
+      plan: targets.length ? switchingPlan(project, targets, profile) : { isolate: [], restore: [], violations: [] },
       schedule: circuitSchedule(project, results),
       boq: priceBoq(billOfQuantities(project, settings), lists, manual, discount),
     };
-  }, [isOpen, project, results, settings, lists, manual, discount]);
+  }, [isOpen, project, results, settings, lists, manual, discount, selection, profile]);
 
   if (!isOpen || !docs) return { open: () => setOpen(true), dialog: null };
 
-  const exportDoc = (what: "schedule" | "boq" | "dxf") => {
+  const nameOf = (id: string) => project.devices.find((d) => d.id === id)?.name ?? id;
+  const exportDoc = (what: "schedule" | "boq" | "dxf" | "switching") => {
     const tr = (k: string) => t(locale, k);
     const name = project.name || "project";
     if (what === "schedule") downloadText(`${name}-schedule.csv`, scheduleCsv(docs.schedule, tr), "text/csv");
@@ -49,6 +56,8 @@ export function useDocuments(
         boqCsv(docs.boq.lines, docs.boq.totals, (l) => describeLine(locale, l), tr),
         "text/csv",
       );
+    else if (what === "switching")
+      downloadText(`${name}-switching.csv`, switchingCsv(docs.plan, nameOf, tr), "text/csv");
     else downloadText(`${name}.dxf`, toDxf(scene), "application/dxf");
   };
   const importList = (name: string, text: string) => {
@@ -66,6 +75,7 @@ export function useDocuments(
         settings={settings}
         discount={discount}
         listNote={listNote}
+        switching={{ ...docs.plan, nameOf, selected: docs.targets.length }}
         onSettings={(p) => setSettings((cur) => ({ ...cur, ...p }))}
         onDiscount={setDiscount}
         onManual={(key, price) => setManual((cur) => ({ ...cur, [key]: price }))}

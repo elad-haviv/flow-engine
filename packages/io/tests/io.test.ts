@@ -163,3 +163,26 @@ describe("document csv", () => {
     expect(b).toContain("doc.discount,,,,,10%,18");
   });
 });
+
+describe("switching csv", () => {
+  it("lists isolate steps, restore steps and problems", async () => {
+    const { switchingCsv } = await import("../src");
+    const t = (k: string) => k;
+    const csv = switchingCsv(
+      {
+        isolate: [
+          { n: 1, action: "open", deviceId: "q" },
+          { n: 2, action: "verify_dead" },
+        ],
+        restore: [{ n: 1, action: "close", deviceId: "q" }],
+        violations: [{ code: "still_live", deviceIds: ["q"] }],
+      },
+      (id) => `name-${id}`,
+      t,
+    );
+    expect(csv).toContain("sw.isolate,1,sw.action.open,name-q");
+    expect(csv).toContain("sw.isolate,2,sw.action.verify_dead,");
+    expect(csv).toContain("sw.restore,1,sw.action.close,name-q");
+    expect(csv).toContain("sw.violations,,sw.violation.still_live,name-q");
+  });
+});

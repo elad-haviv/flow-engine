@@ -4,6 +4,14 @@ import { useState } from "react";
 import { describeLine } from "./describe";
 import { QuantityInput } from "./QuantityInput";
 
+export interface SwitchingView {
+  isolate: Array<{ n: number; action: string; deviceId?: string }>;
+  restore: Array<{ n: number; action: string; deviceId?: string }>;
+  violations: Array<{ code: string; step?: number; deviceIds: string[] }>;
+  nameOf: (id: string) => string;
+  selected: number;
+}
+
 export interface DocumentsProps {
   locale: Locale;
   schedule: CircuitRow[];
@@ -11,11 +19,12 @@ export interface DocumentsProps {
   settings: BoqSettings;
   discount: number;
   listNote: string;
+  switching: SwitchingView;
   onSettings: (s: Partial<BoqSettings>) => void;
   onDiscount: (d: number) => void;
   onManual: (key: string, price: number) => void;
   onImport: (name: string, text: string) => void;
-  onExport: (what: "schedule" | "boq" | "dxf") => void;
+  onExport: (what: "schedule" | "boq" | "dxf" | "switching") => void;
   onClose: () => void;
 }
 
@@ -195,8 +204,48 @@ function BoqControls(p: DocumentsProps) {
   );
 }
 
+type Step = { n: number; action: string; deviceId?: string };
+const stepText = (locale: Locale, view: SwitchingView, s: Step): string =>
+  `${t(locale, `sw.action.${s.action}`)} ${s.deviceId ? view.nameOf(s.deviceId) : ""}`.trim();
+
+function SwitchingTab({ locale, view }: { locale: Locale; view: SwitchingView }) {
+  if (!view.selected)
+    return (
+      <p className="muted" data-testid="sw-hint">
+        {t(locale, "sw.hint")}
+      </p>
+    );
+  return (
+    <div data-testid="switching">
+      <h3>{t(locale, "sw.isolate")}</h3>
+      <ol>
+        {view.isolate.map((s) => (
+          <li key={s.n} data-testid="sw-step">
+            {stepText(locale, view, s)}
+          </li>
+        ))}
+      </ol>
+      <h3>{t(locale, "sw.restore")}</h3>
+      <ol>
+        {view.restore.map((s) => (
+          <li key={s.n}>{stepText(locale, view, s)}</li>
+        ))}
+      </ol>
+      <h3>{t(locale, "sw.violations")}</h3>
+      {view.violations.length === 0 && <p data-testid="sw-ok">{t(locale, "sw.ok")}</p>}
+      <ul>
+        {view.violations.map((v, i) => (
+          <li key={i} className="sev-error" data-testid="sw-violation" data-code={v.code}>
+            {t(locale, `sw.violation.${v.code}`, { device: v.deviceIds.map(view.nameOf).join(", ") })}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function DocumentsDialog(p: DocumentsProps) {
-  const [tab, setTab] = useState<"schedule" | "boq">("schedule");
+  const [tab, setTab] = useState<"schedule" | "boq" | "switching">("schedule");
   const { locale } = p;
   return (
     <div className="modal" role="dialog" aria-modal="true" aria-label={t(locale, "doc.title")} data-testid="documents">
@@ -209,6 +258,9 @@ export function DocumentsDialog(p: DocumentsProps) {
           <button data-testid="tab-boq" aria-pressed={tab === "boq"} onClick={() => setTab("boq")}>
             {t(locale, "doc.tab.boq")}
           </button>
+          <button data-testid="tab-switching" aria-pressed={tab === "switching"} onClick={() => setTab("switching")}>
+            {t(locale, "doc.tab.switching")}
+          </button>
           <span className="spacer" />
           <button data-testid="export-csv" onClick={() => p.onExport(tab)}>
             {t(locale, "doc.export.csv")}
@@ -218,14 +270,14 @@ export function DocumentsDialog(p: DocumentsProps) {
           </button>
         </div>
         <div className="doc-scroll">
-          {tab === "schedule" ? (
-            <ScheduleTable locale={locale} rows={p.schedule} />
-          ) : (
+          {tab === "schedule" && <ScheduleTable locale={locale} rows={p.schedule} />}
+          {tab === "boq" && (
             <>
               <BoqControls {...p} />
               <BoqTable {...p} />
             </>
           )}
+          {tab === "switching" && <SwitchingTab locale={locale} view={p.switching} />}
         </div>
         <button data-testid="documents-close" onClick={p.onClose}>
           {t(locale, "doc.close")}

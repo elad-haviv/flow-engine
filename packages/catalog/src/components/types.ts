@@ -25,6 +25,8 @@ export interface ComponentDef {
   states?: Array<"closed" | "open" | "grounded">;
   /** True for devices that protect a cable (breaker, fuse). */
   protective?: boolean;
+  /** Switches that may be opened with current flowing (breakers, contactors); isolators may not */
+  breaksLoad?: boolean;
   /** Which parameter gives the nominal voltage at a terminal. */
   terminalVoltage?: Partial<Record<TerminalRole, string>>;
   /** Power system of the device's output side (converters). */

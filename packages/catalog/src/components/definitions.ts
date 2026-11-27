@@ -88,6 +88,7 @@ const switches: ComponentDef[] = [
     category: "switch",
     systems: [...ANY],
     terminals: ["in", "out"],
+    breaksLoad: true,
     states: ["closed", "open"],
     protective: true,
     params: [
@@ -118,6 +119,7 @@ const switches: ComponentDef[] = [
     category: "switch",
     systems: [...ANY],
     terminals: ["in", "out"],
+    breaksLoad: true,
     states: ["closed", "open"],
     params: [system(), req("ratedCurrent", "A")],
   },

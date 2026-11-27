@@ -216,6 +216,20 @@ async function wire(page, a, b) {
     dxf.includes("ENTITIES") && dxf.trim().endsWith("EOF") && dxf.includes("CIRCLE"),
     `${dxf.length} bytes`,
   );
+  await page.click('[data-testid="documents-close"]');
+  await page.locator('[data-testid="el-device"]').nth(2).click();
+  await page.click('[data-testid="docs-open"]');
+  await page.click('[data-testid="tab-switching"]');
+  const steps = await page.locator('[data-testid="sw-step"]').allInnerTexts();
+  check(
+    "the switching order opens the breaker first and proves the part dead",
+    /Open Q1/.test(steps[0] ?? "") && steps.some((x) => /Prove/.test(x)),
+    steps.join(" | "),
+  );
+  check(
+    "a missing earthing point is reported",
+    (await page.locator('[data-testid="sw-violation"][data-code="no_isolation_point"]').count()) === 1,
+  );
   await page.screenshot({ path: join(outDir, "documents-en.png") });
   await ctx.close();
 }
