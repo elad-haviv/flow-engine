@@ -1,0 +1,24 @@
+{
+  "name": "flow-engine",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "check:markers": "node scripts/check-markers.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.16.0",
+    "fast-check": "4.11.0",
+    "typescript": "7.0.2",
+    "typescript-eslint": "8.74.0",
+    "vitest": "5.1.2",
+    "zod": "4.6.7"
+  }
+}
