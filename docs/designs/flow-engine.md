@@ -30,7 +30,7 @@ The program is Hebrew first, with English as the second language, and has no con
 *   Network simplification means two features: load aggregation and a visual collapse of part of the diagram. Both are views over the full calculation.
 *   The first set of components is: grid, generator, breaker, busbar, transformer, disconnector, earthing disconnector, load. The component list later grows to about 20 to 24 types, plus an annotation layer.
 *   Build order, accepted by the owner: foundations, then engine and model with no screen, then editor, then documents (first release), then extended components and series loops, then panel layout, then editions.
-*   Technology, accepted by the owner: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, web app first with a desktop wrapper later.
+*   Technology, accepted by the owner: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, the app runs in the browser by default, with an Electron desktop wrapper possible later (owner decision, 2026-11-27), and the owner tests every phase on a deployed build in the owner's Coolify.
 
 ### Decisions made while drafting
 
@@ -105,6 +105,7 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 15. **Panel layout and plan export (Phase 5).** Devices on DIN rails by module width, with enclosure sizes, and the layout exported as DXF. Heat calculations are not included.
 16. **Structure that resists patching (Phase 0).** Layered packages with import rules checked in continuous integration. Strict TypeScript. A file length limit. One written spec per feature, and short decision records for architecture choices. A rule that behaviour is reached through registries and never through type-name checks.
 17. **Edition-ready core (Phase 0 interfaces, Phase 6 editions).** Storage, identity, licensing and the desktop shell sit behind interfaces. Edition differences are a data-driven capability list. No engineering code knows which edition runs it.
+18. **Browser first, testable at every phase (Phase 0).** The app runs in the browser by default and needs no installation. A Docker build serves it as static files. Each phase ends with a build deployed to the owner's Coolify at a test address, so the owner can try it between sessions. Electron is a later, optional wrapper and no feature may depend on it.
 
 ## Non-Goals
 
@@ -117,6 +118,7 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 *   Editing on phones. A read-only phone view may follow later.
 *   Fixing the contents and prices of editions. Only the mechanism for them is built.
 *   Server-side calculation. The engine runs on the user's device.
+*   An Electron desktop wrapper before the browser release. The browser build is the default and Electron may follow.
 *   Full unbalanced three-phase analysis in version 1. Neutral and per-phase results are estimates.
 *   Simultaneous multi-user editing in the first subscription edition. One editor per project at a time.
 
@@ -180,7 +182,7 @@ These five were chosen through single-select gates on 2026-11-27. Options and tr
 | Rendering | SVG at working zoom, canvas when zoomed out or for heavy overlays | One drawing description feeds both renderers, with image tests at the zoom handover. | The renderers drift and a diagram looks different at different zoom levels. |
 | Numerics | In-house numeric core: complex numbers and matrix solving inside `engine` | A dense solver first, a sparse variant when large projects need it, and tests against reference matrices. A condition check that reports floating nodes. | A numerical bug survives because the reference matrices miss its case, or large projects outgrow the dense solver before the sparse one exists. |
 
-Technology accepted earlier by the author: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, web app first with a desktop wrapper later.
+Technology accepted earlier by the author: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, the app runs in the browser by default and Electron may come later (owner decision, 2026-11-27).
 
 ### Layers and dependency rules
 
@@ -349,18 +351,19 @@ The saved project is a list of commands. Each command has a type, a version, a t
 *   Edition differences are a capability set stored as data and read through one interface. No other code tests the edition name.
 *   The long-term-support edition runs offline and checks a signed licence file on the device. The trial adds a signed, time-limited token and project-size limits. The subscription edition adds accounts and cloud storage, which come last (Phase 6).
 *   The engine runs on the user's device in every edition.
+*   **Browser storage.** Projects open and save through a storage interface. Where the browser supports the File System Access API (Chromium-based browsers), the app reads and writes files directly. Elsewhere it uses file upload and download, with autosave in IndexedDB. The long-term-support edition can be installed as an offline-capable web app. The supported browser list is decided in the Phase 0 spec.
 
 ### Delivery phases
 
 | Phase | Content | Exit gate |
 | --- | --- | --- |
-| 0 | Repository rules, `CLAUDE.md`, continuous integration with boundary and size checks, model schema, event-log core, standards manifest | The build fails on a rule violation. A project round-trips through save and load. |
-| 1 | Engine and model with no screen, for the eight core components and the first calculation gate, plus reference tests | The owner signs off the reference set. Every result has a trace. |
+| 0 | Repository rules, `CLAUDE.md`, continuous integration with boundary and size checks, model schema, event-log core, standards manifest, a minimal browser app shell with a Dockerfile, and deployment to the owner's Coolify | The build fails on a rule violation. A project round-trips through save and load. The shell loads at its test address after each push. |
+| 1 | Engine and model for the eight core components and the first calculation gate, plus reference tests, and a calculation console page in the browser (load a network file, see results and traces; no editor) | The owner signs off the reference set. Every result has a trace. |
 | 2 | Editor: nets and compound wires, busbar advice, problems panel, Hebrew and English, design system | A new user wires and energises a feeder unaided in under ten minutes (five users). |
 | 3 | Documents: switching order, circuit schedule, bill of quantities, DXF | **First release**, local edition. |
 | 4 | Remaining components, series loops, protection and selectivity, load aggregation and visual collapse | Second calculation gate passes its reference cases. |
 | 5 | Panel layout and panel plan export | Layout and schedule agree on the same model. |
-| 6 | Editions: accounts, cloud storage, sync | Conflict rule is decided and tested. |
+| 6 | Editions: accounts, cloud storage, sync, and the optional Electron wrapper | Conflict rule is decided and tested. |
 
 ### Risks and limits
 
@@ -371,6 +374,7 @@ The saved project is a list of commands. Each command has a type, a version, a t
 *   **Cloud merging of commands** is harder than merging a document. The rule is deferred to Phase 6 and the log design must not make it impossible.
 *   **Two renderers.** The risk of drift is reduced by the shared drawing description and image tests, and not removed.
 *   **Scope.** The plan is large. The phase gates exist to allow stopping or cutting after any phase.
+*   **Browser limits.** The File System Access API is missing in Firefox and Safari, and IndexedDB has storage quotas, so file handling differs by browser and large projects may hit quotas. A user may clear site data and lose an autosave that was never exported.
 *   **Zero-sequence data** is often missing from catalogs. Fault results for unbalanced faults depend on it.
 *   **Standards licensing.** The text of standards is copyrighted. The tables in the catalog must be entered and tagged by the owner or taken from permitted sources.
 
@@ -420,11 +424,11 @@ Where the author chose between options at a decision gate on 2026-11-27, the aut
 *   **Cons**: It is proprietary and needs a paid library or a conversion step.
 *   **Reason for Rejection**: Rejected for the first release as a drafting default that the owner accepted: DXF is open and practical. Revisit if users insist on DWG.
 
-### Alternative H: Desktop application only, with no web build first
+### Alternative H: Desktop application only, with no browser build first
 
 *   **Pros**: Direct file access. No browser limits. Closest to how Blue Grid ships.
-*   **Cons**: A separate path is needed later for the subscription edition. Updates and trials are harder to distribute. A web build would reach more test users early.
-*   **Reason for Rejection**: Not selected by author: the owner accepted web-first with a desktop wrapper on 2026-11-27. Desktop-only fits better if every edition is local and the subscription edition is dropped.
+*   **Cons**: Testing needs an installer on every machine. A separate path is needed later for the subscription edition. Updates and trials are harder to distribute.
+*   **Reason for Rejection**: Rejected by author: the app runs in the browser by default, deployed to the owner's Coolify for testing, and Electron may come later.
 
 ### Alternative I: Bundle a price list and a product catalog
 
@@ -688,7 +692,7 @@ This plan lists **every file for Phase 0 and Phase 1**, which are the next work.
 | 3 | `packages/views` (circuit schedule, bill of quantities), `packages/io` (DXF, spreadsheet, document, PDF), switching-order logic in `engine`, template files, golden-file tests | Each document and its template |
 | 4 | More kinds in `catalog`, `engine/src/solvers/series-loop.ts`, `engine/src/protection/`, `views` load aggregation and the visual collapse, protection-curve tables | Series loops, protection and selectivity, simplification |
 | 5 | `views` panel layout, enclosure and rail data in `catalog`, DXF panel export in `io` | Panel layout and plan export |
-| 6 | `packages/platform` interfaces and adapters, `packages/editions`, `apps/desktop` wrapper, cloud storage and sync, licence handling | Editions, cloud merge rule, licence check |
+| 6 | `packages/platform` interfaces and adapters, `packages/editions`, `apps/desktop` wrapper (optional, Electron), cloud storage and sync, licence handling | Editions, cloud merge rule, licence check |
 
 ### Pseudo-schemas
 
