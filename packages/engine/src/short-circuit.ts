@@ -19,6 +19,126 @@ const factors = (profileId: ProfileId, vb: number) => {
   return vb <= 1000 ? { max: c.lvMax, min: c.lvMin } : { max: c.mvMax, min: c.mvMin };
 };
 
+interface ScBranch {
+  i: number;
+  j: number;
+  z: Complex;
+}
+interface ScNetwork {
+  branches: ScBranch[];
+  shunt: boolean[];
+  shuntY: Complex[];
+}
+
+const inv = (z: Complex): Complex => C(z.re / (z.re ** 2 + z.im ** 2), -z.im / (z.re ** 2 + z.im ** 2));
+
+function scWires(
+  g: Graph,
+  isl: Island,
+  base: Map<string, number>,
+  idx: Map<string, number>,
+  temp: TempMode,
+  diags: Diagnostic[],
+): ScBranch[] | undefined {
+  const out: ScBranch[] = [];
+  for (const w of isl.wires) {
+    const z = wireImpedance(g.project.cables.find((c) => c.id === w.wire.cableId) as Cable, "ac3", temp);
+    if (!z) {
+      diags.push(diagnostic(ENGINE_CODES.cableNoConductor, "error", [w.wire.cableId]));
+      return undefined;
+    }
+    out.push({ i: idx.get(w.a)!, j: idx.get(w.b)!, z: scale(z.z, 1 / (base.get(w.a)! ** 2 / SBASE)) });
+  }
+  return out;
+}
+
+function scTransformers(
+  g: Graph,
+  isl: Island,
+  base: Map<string, number>,
+  idx: Map<string, number>,
+  profileId: ProfileId,
+): ScBranch[] {
+  const out: ScBranch[] = [];
+  for (const d of isl.devs) {
+    if (d.def.category !== "transformer" || !d.def.seriesImpedance) continue;
+    const t = d.def.seriesImpedance(d.p);
+    const a = g.rep(d.term.in!);
+    const b = g.rep(d.term.out!);
+    const kt = (0.95 * factors(profileId, base.get(b)!).max) / (1 + 0.6 * t.x);
+    const f = (kt * SBASE) / t.ratedVA;
+    if (a !== b) out.push({ i: idx.get(a)!, j: idx.get(b)!, z: C(t.r * f, t.x * f) });
+  }
+  return out;
+}
+
+function scSources(
+  g: Graph,
+  isl: Island,
+  base: Map<string, number>,
+  idx: Map<string, number>,
+  profileId: ProfileId,
+  mode: "max" | "min",
+  net: ScNetwork,
+): void {
+  for (const d of isl.devs) {
+    if (!d.def.sourceImpedance || !d.term.out) continue;
+    const node = g.rep(d.term.out);
+    const vb = base.get(node)!;
+    const c = factors(profileId, vb);
+    const z = d.def.sourceImpedance(d.p, vb, mode === "max" ? c.max : c.min, c.max);
+    const i = idx.get(node)!;
+    net.shunt[i] = true;
+    net.shuntY[i] = add(net.shuntY[i]!, inv(C((z.r * SBASE) / vb ** 2, (z.x * SBASE) / vb ** 2)));
+  }
+}
+
+/**
+ * Leaves (one branch, no source) carry no fault current for the rest of the network:
+ * their impedance is the parent's plus the branch, so only the core needs the matrix inverse.
+ */
+function peelLeaves(n: number, branches: ScBranch[], shunt: boolean[]) {
+  const degree = new Array<number>(n).fill(0);
+  for (const b of branches) {
+    degree[b.i]!++;
+    degree[b.j]!++;
+  }
+  const removed = new Array<boolean>(n).fill(false);
+  const peeled: Array<{ leaf: number; parent: number; z: Complex }> = [];
+  const stack = [...Array(n).keys()].filter((i) => degree[i] === 1 && !shunt[i]);
+  while (stack.length) {
+    const leaf = stack.pop()!;
+    const br = removed[leaf] ? undefined : branches.find((b) => b.i >= 0 && (b.i === leaf || b.j === leaf));
+    if (!br) continue;
+    const parent = br.i === leaf ? br.j : br.i;
+    removed[leaf] = true;
+    peeled.push({ leaf, parent, z: br.z });
+    degree[parent]!--;
+    br.i = br.j = -1;
+    if (degree[parent] === 1 && !shunt[parent]) stack.push(parent);
+  }
+  return { removed, peeled };
+}
+
+function coreMatrix(core: number[], branches: ScBranch[], shuntY: Complex[]): Complex[][] {
+  const pos = new Map(core.map((node, k) => [node, k]));
+  const Y = core.map(() => core.map(() => C(0)));
+  for (const b of branches) {
+    if (b.i < 0) continue;
+    const y = inv(b.z);
+    const i = pos.get(b.i)!;
+    const j = pos.get(b.j)!;
+    Y[i]![i] = add(Y[i]![i]!, y);
+    Y[j]![j] = add(Y[j]![j]!, y);
+    Y[i]![j] = add(Y[i]![j]!, scale(y, -1));
+    Y[j]![i] = add(Y[j]![i]!, scale(y, -1));
+  }
+  core.forEach((node, k) => {
+    Y[k]![k] = add(Y[k]![k]!, shuntY[node]!);
+  });
+  return Y;
+}
+
 /** Thevenin impedance (pu) at every node of a three-phase island, for one set of conditions. */
 function thevenin(
   g: Graph,
@@ -30,82 +150,21 @@ function thevenin(
 ): Complex[] | undefined {
   const n = isl.nodes.length;
   const idx = new Map(isl.nodes.map((k, i) => [k, i]));
-  const temp: TempMode = mode === "max" ? "scMax" : "scMin";
-  const branches: Array<{ i: number; j: number; z: Complex }> = [];
-  const shunt = new Array<boolean>(n).fill(false);
-  const shuntY = new Array<Complex>(n).fill(C(0));
-  for (const w of isl.wires) {
-    const z = wireImpedance(g.project.cables.find((c) => c.id === w.wire.cableId) as Cable, "ac3", temp);
-    if (!z) {
-      diags.push(diagnostic(ENGINE_CODES.cableNoConductor, "error", [w.wire.cableId]));
-      return undefined;
-    }
-    branches.push({ i: idx.get(w.a)!, j: idx.get(w.b)!, z: scale(z.z, 1 / (base.get(w.a)! ** 2 / SBASE)) });
-  }
-  for (const d of isl.devs) {
-    if (d.def.category === "transformer" && d.def.seriesImpedance) {
-      const t = d.def.seriesImpedance(d.p);
-      const a = g.rep(d.term.in!),
-        b = g.rep(d.term.out!);
-      const kt = (0.95 * factors(profileId, base.get(b)!).max) / (1 + 0.6 * t.x);
-      const f = (kt * SBASE) / t.ratedVA;
-      if (a !== b) branches.push({ i: idx.get(a)!, j: idx.get(b)!, z: C(t.r * f, t.x * f) });
-    }
-    if (d.def.sourceImpedance && d.term.out) {
-      const node = g.rep(d.term.out);
-      const vb = base.get(node)!;
-      const c = factors(profileId, vb);
-      const z = d.def.sourceImpedance(d.p, vb, mode === "max" ? c.max : c.min, c.max);
-      const zpu = C((z.r * SBASE) / vb ** 2, (z.x * SBASE) / vb ** 2);
-      const i = idx.get(node)!;
-      shunt[i] = true;
-      shuntY[i] = add(shuntY[i]!, C(zpu.re / (zpu.re ** 2 + zpu.im ** 2), -zpu.im / (zpu.re ** 2 + zpu.im ** 2)));
-    }
-  }
-  // Leaves (one branch, no source) carry no fault current through the rest of the network:
-  // their impedance is the parent's plus the branch, so only the core needs the matrix inverse.
-  const degree = new Array<number>(n).fill(0);
-  for (const b of branches) {
-    degree[b.i]!++;
-    degree[b.j]!++;
-  }
-  const removed = new Array<boolean>(n).fill(false);
-  const peeled: Array<{ leaf: number; parent: number; z: Complex }> = [];
-  const stack = [...Array(n).keys()].filter((i) => degree[i] === 1 && !shunt[i]);
-  while (stack.length) {
-    const leaf = stack.pop()!;
-    if (removed[leaf] || degree[leaf] !== 1) continue;
-    const br = branches.find(
-      (b) => (b.i === leaf || b.j === leaf) && !removed[b.i === leaf ? b.j : b.i] && b.i !== b.j,
-    );
-    if (!br) continue;
-    const parent = br.i === leaf ? br.j : br.i;
-    removed[leaf] = true;
-    peeled.push({ leaf, parent, z: br.z });
-    degree[parent]!--;
-    br.i = br.j = -1;
-    if (degree[parent] === 1 && !shunt[parent]) stack.push(parent);
-  }
+  const wires = scWires(g, isl, base, idx, mode === "max" ? "scMax" : "scMin", diags);
+  if (!wires) return undefined;
+  const branches = [...wires, ...scTransformers(g, isl, base, idx, profileId)];
+  const net: ScNetwork = {
+    branches,
+    shunt: new Array<boolean>(n).fill(false),
+    shuntY: new Array<Complex>(n).fill(C(0)),
+  };
+  scSources(g, isl, base, idx, profileId, mode, net);
+  const { removed, peeled } = peelLeaves(n, branches, net.shunt);
   const core = [...Array(n).keys()].filter((i) => !removed[i]);
-  if (!core.some((i) => shunt[i])) return undefined;
-  const pos = new Map(core.map((node, k) => [node, k]));
-  const Y = Array.from({ length: core.length }, () => Array.from({ length: core.length }, () => C(0)));
-  for (const b of branches) {
-    if (b.i < 0) continue;
-    const y = C(b.z.re / (b.z.re ** 2 + b.z.im ** 2), -b.z.im / (b.z.re ** 2 + b.z.im ** 2));
-    const i = pos.get(b.i)!,
-      j = pos.get(b.j)!;
-    Y[i]![i] = add(Y[i]![i]!, y);
-    Y[j]![j] = add(Y[j]![j]!, y);
-    Y[i]![j] = add(Y[i]![j]!, scale(y, -1));
-    Y[j]![i] = add(Y[j]![i]!, scale(y, -1));
-  }
-  core.forEach((node, k) => {
-    Y[k]![k] = add(Y[k]![k]!, shuntY[node]!);
-  });
+  if (!core.some((i) => net.shunt[i])) return undefined;
   let lu;
   try {
-    lu = complexLu(Y);
+    lu = complexLu(coreMatrix(core, branches, net.shuntY));
   } catch {
     return undefined;
   }
@@ -134,6 +193,15 @@ export function shortCircuit(
   }
   if (isl.devs.some((d) => d.def.category === "load" || d.def.category === "converter"))
     diags.push(diagnostic(ENGINE_CODES.scExcluded, "info", isl.nodes));
+  const gens = isl.devs.filter((d) => d.def.category === "source" && d.def.sourceRole === "pq");
+  if (gens.length)
+    diags.push(
+      diagnostic(
+        ENGINE_CODES.scNearGenerator,
+        "warning",
+        gens.map((d) => d.device.id),
+      ),
+    );
   const zmax = thevenin(g, isl, base, profileId, "max", diags);
   const zmin = thevenin(g, isl, base, profileId, "min", diags);
   if (!zmax || !zmin) return [];

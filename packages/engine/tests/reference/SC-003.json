@@ -1,0 +1,44 @@
+{
+ "id": "SC-003",
+ "title": "Fault at a 500 kVA generator terminal (IEC 60909 K_G correction)",
+ "profile": "il",
+ "source": "Hand calculation: Z_G = xd'' * Un^2 / Sr = 0.048 ohm; K_G = c_max / (1 + xd'' sin(phi)) with sin(phi) = 0.6; I''k = 1.05 * 400 / (sqrt3 * K_G * Z_G). Result about 5.2 kA.",
+ "signedOffBy": null,
+ "signedOffOn": null,
+ "build": {
+  "devices": [
+   {
+    "name": "GN",
+    "kind": "generator",
+    "params": {
+     "ratedPower": 500000,
+     "voltage": 400,
+     "powerFactor": 0.8,
+     "xdSubtransient": 0.15
+    }
+   },
+   {
+    "name": "B",
+    "kind": "busbar",
+    "params": {}
+   }
+  ],
+  "wires": [
+   {
+    "from": "GN.out",
+    "to": "B.bus",
+    "lengthM": 0,
+    "section": 50,
+    "role": "L1"
+   }
+  ]
+ },
+ "expected": [
+  {
+   "select": "ik3Max",
+   "at": "B.bus",
+   "value": 5244.264945139101,
+   "tolerance": 0.002
+  }
+ ]
+}

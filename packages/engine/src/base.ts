@@ -6,39 +6,56 @@ import { num } from "./params";
 
 const same = (a: number, b: number): boolean => Math.abs(a - b) <= 0.1 * Math.max(a, b);
 
+function adjacency(isl: Island): Map<string, string[]> {
+  const adj = new Map<string, string[]>();
+  const add = (a: string, b: string) => adj.set(a, [...(adj.get(a) ?? []), b]);
+  for (const w of isl.wires) {
+    add(w.a, w.b);
+    add(w.b, w.a);
+  }
+  return adj;
+}
+
+function explicitVoltages(g: Graph, isl: Island): Map<string, number[]> {
+  const out = new Map<string, number[]>();
+  for (const d of isl.devs) {
+    for (const [role, tid] of Object.entries(d.term)) {
+      const param = d.def.terminalVoltage?.[role as TerminalRole];
+      const node = g.rep(tid);
+      if (param && g.islandOf.get(node) === isl) out.set(node, [...(out.get(node) ?? []), num(d, param)]);
+    }
+  }
+  return out;
+}
+
+function component(start: string, adj: Map<string, string[]>): string[] {
+  const comp = [start];
+  const seen = new Set(comp);
+  for (let k = 0; k < comp.length; k++) {
+    for (const next of adj.get(comp[k]!) ?? []) {
+      if (!seen.has(next)) {
+        seen.add(next);
+        comp.push(next);
+      }
+    }
+  }
+  return comp;
+}
+
 /**
  * Nominal voltage of every node. Nodes joined by wires share one nominal voltage; transformer sides fix it.
  * Explicit voltages within 10 percent of each other belong to the same network (for example two DC sources at 48 V and 50 V).
  */
 export function assignBase(g: Graph, isl: Island, diags: Diagnostic[]): Map<string, number> | undefined {
-  const adj = new Map<string, string[]>();
-  for (const w of isl.wires) {
-    (adj.get(w.a) ?? adj.set(w.a, []).get(w.a)!).push(w.b);
-    (adj.get(w.b) ?? adj.set(w.b, []).get(w.b)!).push(w.a);
-  }
-  const explicit = new Map<string, number[]>();
-  for (const d of isl.devs) {
-    for (const [role, tid] of Object.entries(d.term)) {
-      const param = d.def.terminalVoltage?.[role as TerminalRole];
-      const node = g.rep(tid);
-      if (!param || g.islandOf.get(node) !== isl) continue;
-      explicit.set(node, [...(explicit.get(node) ?? []), num(d, param)]);
-    }
-  }
+  const adj = adjacency(isl);
+  const explicit = explicitVoltages(g, isl);
   const base = new Map<string, number>();
   for (const start of isl.nodes) {
     if (base.has(start)) continue;
-    const comp = [start];
-    const seen = new Set(comp);
-    for (let k = 0; k < comp.length; k++)
-      for (const nx of adj.get(comp[k]!) ?? [])
-        if (!seen.has(nx)) {
-          seen.add(nx);
-          comp.push(nx);
-        }
+    const comp = component(start, adj);
     const values = comp.flatMap((n) => explicit.get(n) ?? []);
-    if (!values.length) continue;
-    const first = values[0]!;
+    const first = values[0];
+    if (first === undefined) continue;
     const bad = values.find((v) => !same(first, v));
     if (bad !== undefined) {
       diags.push(diagnostic(ENGINE_CODES.voltageConflict, "error", comp, { a: first, b: bad }));

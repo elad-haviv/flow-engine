@@ -30,42 +30,34 @@ const cases: Case[] = readdirSync(dir)
   .sort()
   .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")) as Case);
 
+type Picker = (r: Results, b: Built, e: Expect) => number | boolean | string;
+const node = (r: Results, b: Built, ref: string) => r.nodes.find((x) => x.terminals.includes(b.terminal(ref)))!.key;
+const dev = (b: Built, name: string) => b.deviceIds.get(name)!;
+const fault = (r: Results, b: Built, e: Expect) => r.faults.find((x) => x.nodeKey === node(r, b, e.at!))!;
+const loadOf = (r: Results, b: Built, e: Expect) => r.loads.find((x) => x.deviceId === dev(b, e.device!))!;
+const loopOf = (r: Results, b: Built, e: Expect) => r.loops.find((x) => x.regulatorId === dev(b, e.device!))!;
+
+const PICKERS: Record<string, Picker> = {
+  loadVoltage: (r, b, e) => loadOf(r, b, e).voltage.value,
+  loadDrop: (r, b, e) => loadOf(r, b, e).dropPercent.value,
+  sourceP: (r, b, e) => r.sources.find((x) => x.deviceId === dev(b, e.device!))!.activePower.value,
+  ik3Max: (r, b, e) => fault(r, b, e).ik3Max.value,
+  ik3Min: (r, b, e) => fault(r, b, e).ik3Min.value,
+  ik2Min: (r, b, e) => fault(r, b, e).ik2Min.value,
+  ip: (r, b, e) => fault(r, b, e).ipMax.value,
+  loopVoltage: (r, b, e) => loopOf(r, b, e).voltage.value,
+  loopPower: (r, b, e) => loopOf(r, b, e).power.value,
+  method: (r) => r.islands[0]!.method,
+  loadCount: (r) => r.loads.length,
+  cable: (r, _b, e) => (r.cableChecks[0]![e.field as "ib"] as { value: number }).value,
+  cablePass: (r, _b, e) => r.cableChecks[0]!.passes![e.field as "current"],
+  diag: (r, _b, e) => r.diagnostics.some((d) => d.code === e.code),
+};
+
 function pick(r: Results, b: Built, e: Expect): number | boolean | string {
-  const node = (ref: string) => r.nodes.find((x) => x.terminals.includes(b.terminal(ref)))!.key;
-  const dev = (name: string) => b.deviceIds.get(name)!;
-  const cable = () => r.cableChecks[0]!;
-  switch (e.select) {
-    case "loadVoltage":
-      return r.loads.find((x) => x.deviceId === dev(e.device!))!.voltage.value;
-    case "loadDrop":
-      return r.loads.find((x) => x.deviceId === dev(e.device!))!.dropPercent.value;
-    case "sourceP":
-      return r.sources.find((x) => x.deviceId === dev(e.device!))!.activePower.value;
-    case "ik3Max":
-      return r.faults.find((x) => x.nodeKey === node(e.at!))!.ik3Max.value;
-    case "ik3Min":
-      return r.faults.find((x) => x.nodeKey === node(e.at!))!.ik3Min.value;
-    case "ik2Min":
-      return r.faults.find((x) => x.nodeKey === node(e.at!))!.ik2Min.value;
-    case "ip":
-      return r.faults.find((x) => x.nodeKey === node(e.at!))!.ipMax.value;
-    case "loopVoltage":
-      return r.loops.find((x) => x.regulatorId === dev(e.device!))!.voltage.value;
-    case "loopPower":
-      return r.loops.find((x) => x.regulatorId === dev(e.device!))!.power.value;
-    case "method":
-      return r.islands[0]!.method;
-    case "loadCount":
-      return r.loads.length;
-    case "cable":
-      return (cable()[e.field as "ib"] as { value: number }).value;
-    case "cablePass":
-      return cable().passes![e.field as "current"];
-    case "diag":
-      return r.diagnostics.some((d) => d.code === e.code);
-    default:
-      throw new Error(`unknown selector ${e.select}`);
-  }
+  const f = PICKERS[e.select];
+  if (!f) throw new Error(`unknown selector ${e.select}`);
+  return f(r, b, e);
 }
 
 describe("reference cases", () => {

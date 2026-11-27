@@ -26,6 +26,7 @@ export const ENGINE_CODES = {
   unverified: "engine.standards.unverified",
   assumption: "engine.assumption.used",
   scUnsupported: "engine.sc.unsupported_power_type",
+  scNearGenerator: "engine.sc.near_generator",
   scExcluded: "engine.sc.contribution_excluded",
   breakingCapacity: "engine.protection.breaking_capacity_exceeded",
   earthedLive: "engine.net.earthed_live",

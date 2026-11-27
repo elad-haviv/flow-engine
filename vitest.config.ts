@@ -12,7 +12,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["packages/model/src/**", "packages/catalog/src/**", "packages/engine/src/**"],
-      thresholds: { branches: 85 },
+      thresholds: {
+        "packages/model/src/**": { branches: 85 },
+        "packages/catalog/src/**": { branches: 85 },
+        "packages/engine/src/**": { branches: 85 },
+      },
     },
   },
 });

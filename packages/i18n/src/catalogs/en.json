@@ -61,5 +61,6 @@
   "diag.engine.protection.breaking_capacity_exceeded": "Fault current {fault} A exceeds the breaking capacity {capacity} A.",
   "diag.engine.net.earthed_live": "The earthing disconnector is closed on a live part of the network.",
   "diag.engine.source.rated_power_exceeded": "The source delivers more than its rated power.",
-  "diag.advice.busbar.suggest": "{count} wires meet at one terminal. A busbar may be a better choice."
+  "diag.advice.busbar.suggest": "{count} wires meet at one terminal. A busbar may be a better choice.",
+  "diag.engine.sc.near_generator": "A generator is in this network: results assume the fault is far from the generator, which is not checked in this version."
 }

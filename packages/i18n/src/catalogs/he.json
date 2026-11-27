@@ -61,5 +61,6 @@
   "diag.engine.protection.breaking_capacity_exceeded": "זרם הקצר {fault} A חורג מכושר הניתוק {capacity} A.",
   "diag.engine.net.earthed_live": "מפסק הארקה סגור על חלק חי ברשת.",
   "diag.engine.source.rated_power_exceeded": "המקור מספק יותר מההספק הנקוב.",
-  "diag.advice.busbar.suggest": "{count} חוטים נפגשים בדק אחד. אולי מוטב להשתמש בפס צבירה."
+  "diag.advice.busbar.suggest": "{count} חוטים נפגשים בדק אחד. אולי מוטב להשתמש בפס צבירה.",
+  "diag.engine.sc.near_generator": "ברשת זו יש גנרטור: התוצאות מניחות שהקצר רחוק מהגנרטור, והדבר לא נבדק בגרסה זו."
 }
