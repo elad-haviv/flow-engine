@@ -31,6 +31,7 @@ The program is Hebrew first, with English as the second language, and has no con
 *   The first set of components is: grid, generator, breaker, busbar, transformer, disconnector, earthing disconnector, load. The component list later grows to about 20 to 24 types, plus an annotation layer.
 *   Build order, accepted by the owner: foundations, then engine and model with no screen, then editor, then documents (first release), then extended components and series loops, then panel layout, then editions.
 *   Technology, accepted by the owner: TypeScript throughout, React with Vite, a monorepo of layered packages, the engine in a worker, the app runs in the browser by default, with an Electron desktop wrapper possible later (owner decision, 2026-11-27), and the owner tests every phase on a deployed build in the owner's Coolify.
+*   Blue Grid parity (2026-11-27): the owner followed the Elephant's recommendation on every one of the 357 Blue Grid feature rows in the [parity checklist](./parity-checklist.md). 25 of those rows were the owner's own call and were taken by delegation.
 
 ### Decisions made while drafting
 
@@ -106,6 +107,7 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 16. **Structure that resists patching (Phase 0).** Layered packages with import rules checked in continuous integration. Strict TypeScript. A file length limit. One written spec per feature, and short decision records for architecture choices. A rule that behaviour is reached through registries and never through type-name checks.
 17. **Edition-ready core (Phase 0 interfaces, Phase 6 editions).** Storage, identity, licensing and the desktop shell sit behind interfaces. Edition differences are a data-driven capability list. No engineering code knows which edition runs it.
 18. **Browser first, testable at every phase (Phase 0).** The app runs in the browser by default and needs no installation. A Docker build serves it as static files. Each phase ends with a build deployed to the owner's Coolify at a test address, so the owner can try it between sessions. Electron is a later, optional wrapper and no feature may depend on it.
+19. **Blue Grid parity is explicit (Phase 0).** Every Blue Grid feature has a row in the parity checklist with a decision, a phase and a home in this design. The owner has recorded a decision on all 357 rows. A feature is part of the product only when its row says where it lives.
 
 ## Non-Goals
 
@@ -121,6 +123,7 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 *   An Electron desktop wrapper before the browser release. The browser build is the default and Electron may follow.
 *   Full unbalanced three-phase analysis in version 1. Neutral and per-phase results are estimates.
 *   Simultaneous multi-user editing in the first subscription edition. One editor per project at a time.
+*   Blue Grid features the owner decided not to carry over: live load monitoring, its history and charts over a rehearsal (static load aggregation stays), generator voltage and frequency drift, mirror (which was a 180-degree rotation), the shake feedback on a refused action, centre-on-origin, the simplified and detailed calculation modes and the legacy solver, the phase splitter, and SPD and pole as simulated parts. See the parity checklist.
 
 ## Open Questions
 
@@ -307,7 +310,7 @@ The saved project is a list of commands. Each command has a type, a version, a t
 
 **Worker.** The engine runs in a worker with a message protocol that coalesces rapid requests and drops stale results. Input is an immutable snapshot of the derived network, and output is structured data.
 
-**Switching-order logic.** The engine checks each simulated operation against interlocks and lock-out, and records the operation list that the document view turns into a switching order.
+**Switching-order logic.** The engine checks each simulated operation against lock-out and, from Phase 3, interlocks, and records the operation list that the document view turns into a switching order. Lock-out applies to wires as well as components. Opening a disconnector under load is refused and leaves a fault that has an explicit repair or reset action. A tripped device can be reset only to open. Interlock rules (exclusive or required-closed) are read from the control-logic layer and bound to devices by ID.
 
 **Simplification.** Load aggregation sums loads per node or section with their phases and power factors. The visual collapse hides part of the diagram behind a labelled block. Both are views over the full calculation, list what they contain, and check their totals against the full result.
 
@@ -358,16 +361,26 @@ The saved project is a list of commands. Each command has a type, a version, a t
 | Phase | Content | Exit gate |
 | --- | --- | --- |
 | 0 | Repository rules, `CLAUDE.md`, continuous integration with boundary and size checks, model schema, event-log core, standards manifest, a minimal browser app shell with a Dockerfile, and deployment to the owner's Coolify | The build fails on a rule violation. A project round-trips through save and load. The shell loads at its test address after each push. |
-| 1 | Engine and model for the eight core components and the first calculation gate, plus reference tests, and a calculation console page in the browser (load a network file, see results and traces; no editor) | The owner signs off the reference set. Every result has a trace. |
-| 2 | Editor: nets and compound wires, busbar advice, problems panel, Hebrew and English, design system | A new user wires and energises a feeder unaided in under ten minutes (five users). |
-| 3 | Documents: switching order, circuit schedule, bill of quantities, DXF | **First release**, local edition. |
-| 4 | Remaining components, series loops, protection and selectivity, load aggregation and visual collapse | Second calculation gate passes its reference cases. |
+| 1 | Engine and model for the eight core components and the first calculation gate, plus reference tests, and a calculation console page in the browser (load a network file, see results and traces; no editor). Includes the switching and protection rules of the core components: lock-out and tag-out for components and wires, no opening a disconnector under load (with a repair path for the fault it causes), a tripped device resets only to open, instant overcurrent trip, voltage-limit and source-overload diagnostics, and the simulation options as inputs to the run | The owner signs off the reference set. Every result has a trace. |
+| 2 | Editor: nets and compound wires, busbar advice, problems panel, Hebrew and English, design system, location zones and the layers pane, the annotation layer, the library and schema-driven property forms for the core components, a visible mode banner with Escape to cancel, one settings page, and a first-run guide that never deletes work | A new user wires and energises a feeder unaided in under ten minutes (five users). |
+| 3 | Documents: switching log and order, circuit schedule, bill of quantities, DXF; the interlock check; operator tools for lock-out and earthing; an optional Blue Grid file converter (the owner's call) | **First release**, local edition. |
+| 4 | Remaining components, series loops, protection and selectivity, load aggregation and visual collapse. Includes the RCD with leakage summed from downstream, the fuse, the protection profile on the switch, one converter, the UPS as converter plus battery plus bypass, the control-logic layer (synchroniser, ATS, interlock authoring), the fuel tank, and load aggregation without live monitoring | Second calculation gate passes its reference cases. |
 | 5 | Panel layout and panel plan export | Layout and schedule agree on the same model. |
-| 6 | Editions: accounts, cloud storage, sync, and the optional Electron wrapper | Conflict rule is decided and tested. |
+| 6 | Editions: accounts, cloud storage, sync, the optional Electron wrapper, and a read-only phone view (the owner's call) | Conflict rule is decided and tested. |
 
 ### Blue Grid parity
 
-The [parity checklist](./parity-checklist.md) lists every Blue Grid feature found in the code, the changelog and the docs (357 rows), with a proposed decision, a home in this design, and an owner column. A Blue Grid feature is part of Flow Engine only when its row says where it lives. The first release is not complete until the owner has marked every KEEP and REDESIGN row that falls in Phases 0 to 3.
+The [parity checklist](./parity-checklist.md) lists every Blue Grid feature found in the code, the changelog and the docs (357 rows). On 2026-11-27 the owner recorded a decision on every row, following the recommendations in [recommendations.md](../parity/recommendations.md): 317 as the scan proposed and 40 with a different decision. 25 of the rows were the owner's own call and were taken by delegation.
+
+What those decisions change in this design:
+
+* **Moved earlier:** location zones, the layers pane, annotation shapes and their styling (Phase 2); lock-out, the disconnector rule, trip-reset-to-open, and the generator (Phase 1).
+* **Moved later:** link modes for synchroniser, interlock, ATS and the fuel tank (Phase 4, with the control-logic layer); animated current (Phase 4); the interlock check itself (Phase 3).
+* **Not carried over:** see the Non-Goals.
+* **Merged:** the earthing disconnector into the switch, the electronic breaker into a protection profile, and the EV charger into the load.
+* **Specified, not copied:** Blue Grid defects found in the review (see Risks and limits).
+
+The first release is not complete until every KEEP and REDESIGN row that falls in Phases 0 to 3 is built or has a recorded reason.
 
 ### Risks and limits
 
@@ -380,6 +393,7 @@ The [parity checklist](./parity-checklist.md) lists every Blue Grid feature foun
 *   **Scope.** The plan is large. The phase gates exist to allow stopping or cutting after any phase.
 *   **Browser limits.** The File System Access API is missing in Firefox and Safari, and IndexedDB has storage quotas, so file handling differs by browser and large projects may hit quotas. A user may clear site data and lose an autosave that was never exported.
 *   **Zero-sequence data** is often missing from catalogs. Fault results for unbalanced faults depend on it.
+*   **Blue Grid defects found in the parity review, not to be ported.** Delete and cut ignore the lock flag, and the wire lock flag is never checked by the engine. Two context-menu actions are stubs (forward and backward z-order equal front and back) and distribute does nothing. A disconnector arc fault latches with no repair path. An RCD reads only its own node's leakage, so an RCD upstream of a leaking load never trips. The constant-current regulator's open-circuit trip checks a string that nothing sets. Fault current on a cable fault falls back silently to the node's maximum or a fixed 1000 A. Each needs a specified behaviour and a test in its phase. Found by reading the code, not by running it.
 *   **Standards licensing.** The text of standards is copyrighted. The tables in the catalog must be entered and tagged by the owner or taken from permitted sources.
 
 ## Alternatives Considered
