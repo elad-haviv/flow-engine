@@ -365,6 +365,10 @@ The saved project is a list of commands. Each command has a type, a version, a t
 | 5 | Panel layout and panel plan export | Layout and schedule agree on the same model. |
 | 6 | Editions: accounts, cloud storage, sync, and the optional Electron wrapper | Conflict rule is decided and tested. |
 
+### Blue Grid parity
+
+The [parity checklist](./parity-checklist.md) lists every Blue Grid feature found in the code, the changelog and the docs (357 rows), with a proposed decision, a home in this design, and an owner column. A Blue Grid feature is part of Flow Engine only when its row says where it lives. The first release is not complete until the owner has marked every KEEP and REDESIGN row that falls in Phases 0 to 3.
+
 ### Risks and limits
 
 *   **Real numbers is a promise.** The plan depends on reference cases from outside the code and on the owner's review. Without both, "verifiable" cannot be claimed.
