@@ -36,7 +36,7 @@ The program is Hebrew first, with English as the second language, and has no con
 
 On 2026-11-27 the owner asked Claude to resolve the open questions below with its own suggestions. These are proposals recorded as decisions. Each states how it could fail, so a reviewer can challenge it. The owner can reverse any of them.
 
-*   **Circuit entity.** A circuit is a first-class entity in the model. It has an ID, a panel, a way number, a phase assignment, and an ordered list of the devices and the cable it contains. A device belongs to at most one circuit. The tool suggests membership by following the network downstream of a protective device up to the next protective device, and the user can edit it. *Fails if:* real panels share devices across circuits (for example a common residual-current device for several ways). The model then needs a "group" entity. This is checked in the Phase 1 schema work with real panel examples.
+*   **Circuit entity.** A circuit is a first-class entity in the model. It has an ID, a panel, a way number, a phase assignment, and an ordered list of the devices and the cable it contains. A device may appear in more than one circuit, because a shared residual-current device serves several ways. The tool suggests one circuit per device by following the network downstream of a protective device up to the next protective device, and the user can edit it. *Fails if:* a shared device makes the schedule and the bill of quantities count it twice. Both count each device once by ID, and a test covers a shared device.
 *   **Busbar suggestion threshold.** The suggestion appears at three or more wires on one terminal. Two wires form a plain junction. The model itself has no limit. The owner confirmed three at finalization, when the draft was checked against the concepts brief, which says the app asks when multiple wires share a port without giving a number. *Fails if:* users find the threshold too early or too late. The value is a setting and the dismissals are logged during first-use tests.
 *   **Standards editions.** A project stores a standards profile ID and edition (for example Israeli law and IEC). Tables and rules are versioned data. A manifest created in Phase 0 pins the editions for version 1. The owner confirms the Israeli table edition. *Fails if:* a project must be recalculated under a newer edition. The project then keeps its pinned edition and shows a visible "newer edition available" notice, and recalculation is an explicit action.
 *   **File format.** One JSON document per project with a schema version, stable IDs, validation on load, and an ordered chain of migrations. The document holds the event log (the saved project) and its snapshots. Unknown or invalid data is reported to the user and never deleted. Local files and cloud storage use the same document. Cloud revision data sits outside the document. *Fails if:* projects grow too large for one document. The format then needs a split into parts, which a schema version can introduce.
@@ -45,6 +45,13 @@ On 2026-11-27 the owner asked Claude to resolve the open questions below with it
 *   **First-use target.** Under ten minutes, tested with at least five people who have never used the tool. This is the exit test for Phase 2.
 *   **Reference test cases.** Four sources: worked examples from IEC TR 60909-4, standard IEEE test networks, cross-checks against the open-source solver pandapower (proposed tolerances: 1 percent for fault current and 0.1 percent for voltage drop), and hand calculations. The owner reviews all cases. Israeli-law cases are hand-checked by the owner. *Fails if:* an outside source disagrees with the owner's hand calculation. The case is then recorded as an open dispute with both calculations and is not silently resolved.
 *   **Product name.** "Flow Engine" stays the working name. One web search found no single-line-diagram software with that name. ETAP, EasyPower and elec calc appeared instead. That search is not a trademark or domain check.
+*   **Unbalanced analysis.** Version 1 gives neutral and per-phase results as a balanced-model estimate, labelled as such. Full unbalanced analysis is outside version 1. *Fails if:* a user must size a neutral conductor from the result. The label tells them it is an estimate, and the full method becomes a separate decision (see Alternative K).
+*   **Cloud conflict rule.** The first subscription edition allows one editor per project at a time, with a project lock. Merging commands from simultaneous editors comes later. *Fails if:* teams need simultaneous editing at launch. The event log keeps that path open.
+*   **Snapshots and compaction.** A snapshot is written at every save and after every 200 commands. Compaction is offered, never automatic, when a file passes 20 MB. These numbers are starting values, to be measured in Phase 0. *Fails if:* opening a large project is still slow, which means the interval is too long.
+*   **Zero-sequence data.** The catalog stores zero-sequence values for transformers by vector group and for cables from typical ratios in the standards tables. The user can override them. A device with no data produces a fault result marked incomplete, and never an assumed value. *Fails if:* a typical ratio is wrong for a real cable. The result then shows its origin as "typical", so the engineer sees it.
+*   **Standards table entry.** The owner enters standards values as numbers with their source tags. No standard text is copied into the project. The tables are checked by the owner. A legal check of what may be stored and distributed is needed before any commercial release. This is not legal advice.
+*   **Israeli-law reference cases.** The owner, as a human electrical engineer, hand-checks them for version 1. A second Israeli engineer is a condition for any public claim of verification.
+*   **Licence tampering.** The long-term-support edition does not defend against clock changes or shared licence files beyond the signed file.
 
 ## The Problem
 
@@ -109,21 +116,16 @@ Each goal is tagged with the delivery phase where it must be met. Phases are def
 *   Editing on phones. A read-only phone view may follow later.
 *   Fixing the contents and prices of editions. Only the mechanism for them is built.
 *   Server-side calculation. The engine runs on the user's device.
+*   Full unbalanced three-phase analysis in version 1. Neutral and per-phase results are estimates.
+*   Simultaneous multi-user editing in the first subscription edition. One editor per project at a time.
 
 ## Open Questions
 
-*   **Owner's unfinished message:** the message with the core component list ended with a stray "7.". Was something meant to follow? Drafting continues without it.
+Only facts the owner holds, or checks only the owner can arrange, remain open.
+
 *   **Bill of quantities inputs:** does the owner hold a Dekel licence, how are bills priced in practice, and which suppliers does the owner use? See `docs/research/boq_options.md`. Until answered, the design assumes a plain grouped list, an optional chapter template, and user-imported price lists.
 *   **Israeli table edition:** which edition of the Israeli tables is pinned for version 1?
-*   **Israeli-law reference cases:** is the owner's hand check enough for the Israeli-law cases, or will a second Israeli engineer confirm them?
 *   **Name and trademark:** a proper trademark and domain check for "Flow Engine" is still needed before any public release.
-*   **Licence tampering:** how far must the long-term-support edition defend against clock changes and shared licence files?
-*   **Shared devices across circuits:** do the owner's real panels share devices between circuits? This decides whether the model needs a "group" entity.
-*   **Unbalanced analysis:** is the "balanced-model estimate" for neutral and per-phase results acceptable for version 1, or must full unbalanced analysis be in scope?
-*   **Cloud conflict rule:** how are two users' commands merged when they edit the same project? Needed before Phase 6.
-*   **Snapshot interval and compaction rule:** how often are snapshots written, and when may history be compacted?
-*   **Zero-sequence data source:** where do transformer and cable zero-sequence values come from, given that catalogs often lack them?
-*   **Standards table entry:** who enters and checks the Israeli-law tables, and under which licence terms may they be stored in the catalog?
 
 ## Critical User Journeys (CUJs)
 
@@ -588,7 +590,7 @@ This plan lists **every file for Phase 0 and Phase 1**, which are the next work.
 | `src/project/create.ts` | Create | Creates an empty project. |
 | `src/project/load.ts` | Create | Validates a file, reports problems as diagnostics, and never deletes data silently. |
 | `src/project/save.ts` | Create | Serialises log and snapshots into the file format. |
-| `src/project/invariants.ts` | Create | Checks rules the schema cannot (a device belongs to at most one circuit, a wire's endpoints exist). |
+| `src/project/invariants.ts` | Create | Checks rules the schema cannot (every circuit member exists, a wire's endpoints exist). |
 | `tests/ids.test.ts`, `tests/units.test.ts` | Create | IDs are unique and sortable. Unit conversions round-trip. |
 | `tests/apply.test.ts` | Create | Each command produces the expected model and rejects invalid input. |
 | `tests/log-replay.test.ts` | Create | Replay equals the live model. Undo restores the earlier state. |
