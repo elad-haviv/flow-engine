@@ -1,1 +1,1 @@
-{ "extends": "../../tsconfig.base.json", "compilerOptions": { "outDir": "dist", "rootDir": "." }, "include": ["src", "src/**/*.json", "tests"] }
+{"extends": "../../tsconfig.base.json", "compilerOptions": {"outDir": "dist", "rootDir": "."}, "include": ["src", "src/**/*.json", "tests"], "references": [{"path": "../model"}]}

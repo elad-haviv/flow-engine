@@ -6,7 +6,7 @@ export interface ApplyContext {
   newId(): string;
   now(): string;
   /** Terminal roles a device kind has, or undefined if the kind is unknown. */
-  terminalsFor(kind: string): Array<{ role: "in" | "out" | "earth" | "bus"; conductors: string[] }> | undefined;
+  terminalsFor(kind: string): Array<{ role: "in" | "out" | "return" | "earth" | "bus"; conductors: string[] }> | undefined;
   paramValid(kind: string, field: string, value: ParamValue): boolean;
   stateValid(kind: string, state: string): boolean;
 }

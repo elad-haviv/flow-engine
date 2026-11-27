@@ -12,7 +12,7 @@ export const deviceSchema = z.object({
 export const terminalSchema = z.object({
   id: idSchema,
   deviceId: idSchema,
-  role: z.enum(["in", "out", "earth", "bus"]),
+  role: z.enum(["in", "out", "return", "earth", "bus"]),
   conductors: z.array(z.string()),
 });
 

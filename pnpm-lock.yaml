@@ -82,7 +82,20 @@ importers:
         specifier: 8.4.0
         version: 8.4.0(@types/node@26.6.11)(jiti@2.7.0)(yaml@2.9.1)
 
-  packages/catalog: {}
+  packages/catalog:
+    dependencies:
+      '@flow/model':
+        specifier: workspace:*
+        version: link:../model
+
+  packages/engine:
+    dependencies:
+      '@flow/catalog':
+        specifier: workspace:*
+        version: link:../catalog
+      '@flow/model':
+        specifier: workspace:*
+        version: link:../model
 
   packages/i18n: {}
 
