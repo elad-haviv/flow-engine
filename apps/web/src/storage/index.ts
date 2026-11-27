@@ -3,5 +3,6 @@ import { downloadUpload } from "./download-upload";
 import { fileSystemAccess, hasFileSystemAccess } from "./file-system-access";
 
 export { indexedDbStorage } from "./indexeddb";
+export { downloadText } from "./download-upload";
 export const fileAccess = (): FileAccess => (hasFileSystemAccess() ? fileSystemAccess() : downloadUpload());
 export const fileAccessKind = (): "fsa" | "download" => (hasFileSystemAccess() ? "fsa" : "download");

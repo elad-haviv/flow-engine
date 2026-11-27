@@ -170,6 +170,56 @@ async function wire(page, a, b) {
   await page.close();
 }
 
+// 2c. Documents: schedule, bill of quantities, price list import, exports
+{
+  const ctx = await browser.newContext({ locale: "en", acceptDownloads: true, viewport: { width: 1280, height: 760 } });
+  const page = await ctx.newPage();
+  await page.goto(base);
+  await place(page, "grid", 200, 80);
+  await place(page, "breaker", 200, 220);
+  await place(page, "load", 200, 360);
+  await wire(page, 0, 1);
+  await wire(page, 2, 3);
+  await page.click('[data-testid="tool-select"]');
+  await page.click('[data-testid="docs-open"]');
+  check("schedule has one row for the load", (await page.locator('[data-testid="schedule-row"]').count()) === 1);
+  const row = await page.locator('[data-testid="schedule-row"]').first().innerText();
+  check("the row names the breaker and a cable", /Q1/.test(row) && /Cu PVC 10/.test(row), row.replace(/\s+/g, " "));
+  await page.click('[data-testid="tab-boq"]');
+  check(
+    "bill of quantities lists the breaker",
+    /Circuit breaker 50 A/.test(await page.locator('[data-testid="boq"]').innerText()),
+  );
+  check("everything is unpriced at first", (await page.locator('[data-testid="boq-total"]').innerText()) === "0");
+  const csv =
+    "key,description,unit,price,currency\nbreaker|ratedCurrent=50|breakingCapacity=10000,MCB 50A,pc,120.5,ILS\n";
+  await page
+    .locator('[data-testid="price-file"]')
+    .setInputFiles({ name: "supplier.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
+  await page.waitForFunction(() => document.querySelector('[data-testid="boq-total"]').textContent === "120.5");
+  check(
+    "importing a price list prices the matching line",
+    (await page.locator('[data-testid="boq-total"]').innerText()) === "120.5",
+  );
+  check("the line shows its price source", /supplier/.test(await page.locator('[data-testid="boq"]').innerText()));
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.click('[data-testid="export-csv"]')]);
+  const text = (await import("node:fs")).readFileSync(await dl.path(), "utf8");
+  check(
+    "the CSV starts with a byte-order mark and the columns",
+    text.startsWith("\uFEFFKey,Description") || text.startsWith("\uFEFFkey"),
+    text.slice(0, 40),
+  );
+  const [dx] = await Promise.all([page.waitForEvent("download"), page.click('[data-testid="export-dxf"]')]);
+  const dxf = (await import("node:fs")).readFileSync(await dx.path(), "utf8");
+  check(
+    "the DXF has entities and ends with EOF",
+    dxf.includes("ENTITIES") && dxf.trim().endsWith("EOF") && dxf.includes("CIRCLE"),
+    `${dxf.length} bytes`,
+  );
+  await page.screenshot({ path: join(outDir, "documents-en.png") });
+  await ctx.close();
+}
+
 // 3. Hebrew UI with mixed-direction labels
 {
   const page = await fresh("he-IL");

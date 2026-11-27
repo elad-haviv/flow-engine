@@ -351,3 +351,60 @@ select:focus-visible {
   display: grid;
   gap: 8px;
 }
+.modal-body.wide {
+  width: min(1100px, 96vw);
+  max-height: 92vh;
+  grid-template-rows: auto auto 1fr auto;
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.doc-scroll {
+  overflow: auto;
+  max-height: 60vh;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+th,
+td {
+  border-block-end: 1px solid var(--line);
+  padding: 4px 8px;
+  text-align: start;
+  vertical-align: top;
+}
+th {
+  color: var(--muted);
+  font-weight: 600;
+  position: sticky;
+  inset-block-start: 0;
+  background: var(--panel);
+}
+td input {
+  width: 90px;
+}
+.boq-controls {
+  display: grid;
+  gap: 6px;
+  margin-block-end: 12px;
+}
+.boq-controls label {
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+}
+.boq-controls {
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+}
+.boq-controls > label:first-child,
+.boq-controls > p {
+  grid-column: 1 / -1;
+}
+.boq-controls > p {
+  margin: 0;
+}

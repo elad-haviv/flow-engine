@@ -24,3 +24,12 @@ export function downloadUpload(doc: Document = document): FileAccess {
     },
   };
 }
+
+/** Hands a generated document to the browser as a file download. */
+export function downloadText(name: string, text: string, mime: string, doc: Document = document): void {
+  const a = doc.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: `${mime};charset=utf-8` }));
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}

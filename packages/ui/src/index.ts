@@ -7,3 +7,5 @@ export * from "./AnnotationTools";
 export * from "./SettingsDialog";
 export * from "./messages";
 export * from "./quantity";
+export * from "./DocumentsDialog";
+export * from "./describe";

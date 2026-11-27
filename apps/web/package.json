@@ -15,7 +15,10 @@
     "@flow/platform": "workspace:*",
     "@flow/editor": "workspace:*",
     "@flow/ui": "workspace:*",
-    "@flow/scene": "workspace:*"
+    "@flow/scene": "workspace:*",
+    "@flow/views": "workspace:*",
+    "@flow/io": "workspace:*",
+    "@flow/engine": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.3.3",

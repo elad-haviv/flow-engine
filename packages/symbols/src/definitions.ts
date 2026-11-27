@@ -13,7 +13,34 @@ const box = (g: string): Prim[] => [rect(12, 15, 36, 30), text(mid, mid + 5, g)]
 
 export const SYMBOLS: Record<string, Symbol> = {
   grid: sym(
-    [leadTop(0), circle(mid, 24, 16), { t: "path", d: "M 20 24 q 5 -10 10 0 t 10 0", cls: "wave" }, leadBottom(40)],
+    [
+      leadTop(0),
+      circle(mid, 24, 16),
+      {
+        t: "polyline",
+        points: [
+          { x: 20, y: 24.0 },
+          { x: 21.25, y: 22.09 },
+          { x: 22.5, y: 20.46 },
+          { x: 23.75, y: 19.38 },
+          { x: 25, y: 19.0 },
+          { x: 26.25, y: 19.38 },
+          { x: 27.5, y: 20.46 },
+          { x: 28.75, y: 22.09 },
+          { x: 30, y: 24.0 },
+          { x: 31.25, y: 25.91 },
+          { x: 32.5, y: 27.54 },
+          { x: 33.75, y: 28.62 },
+          { x: 35, y: 29.0 },
+          { x: 36.25, y: 28.62 },
+          { x: 37.5, y: 27.54 },
+          { x: 38.75, y: 25.91 },
+          { x: 40, y: 24.0 },
+        ],
+        cls: "wave",
+      },
+      leadBottom(40),
+    ],
     { out: bottom },
   ),
   generator: sym([...body("G"), leadBottom(48)], { out: bottom }),

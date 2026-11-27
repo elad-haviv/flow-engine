@@ -36,6 +36,15 @@
     },
     {
       "path": "../../packages/scene"
+    },
+    {
+      "path": "../../packages/views"
+    },
+    {
+      "path": "../../packages/io"
+    },
+    {
+      "path": "../../packages/engine"
     }
   ]
 }

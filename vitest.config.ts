@@ -18,6 +18,8 @@ export default defineConfig({
         "packages/scene/src/**",
         "packages/symbols/src/**",
         "packages/editor/src/**",
+        "packages/views/src/**",
+        "packages/io/src/**",
       ],
       thresholds: {
         "packages/model/src/**": { branches: 85 },
@@ -25,6 +27,8 @@ export default defineConfig({
         "packages/engine/src/**": { branches: 85 },
         "packages/scene/src/**": { branches: 85 },
         "packages/editor/src/**": { branches: 85 },
+        "packages/views/src/**": { branches: 85 },
+        "packages/io/src/**": { branches: 85 },
       },
     },
   },

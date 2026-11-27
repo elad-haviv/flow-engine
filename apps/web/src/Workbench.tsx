@@ -18,6 +18,7 @@ import type { Point } from "@flow/scene";
 import { Banner, LayersPanel, Palette, ProblemsPanel, PropertiesPanel, SceneView, SettingsDialog } from "@flow/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fileAccess, indexedDbStorage } from "./storage";
+import { useDocuments } from "./useDocuments";
 
 const ctx = makeContext();
 const storage = indexedDbStorage();
@@ -117,6 +118,7 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
     () => buildScene(state.project, { results: state.results, expanded: state.expanded, hidden: state.hidden }),
     [state.project, state.results, state.expanded, state.hidden],
   );
+  const documents = useDocuments(locale, state.project, state.results, scene);
   const problems = useMemo(() => problemsOf(state.results), [state.results]);
   const markers = useMemo(() => terminalMarkers(state.project), [state.project]);
 
@@ -162,6 +164,9 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
         </button>
         <button data-testid="open" onClick={() => void open()}>
           {t(locale, "ui.open")}
+        </button>
+        <button data-testid="docs-open" onClick={documents.open}>
+          {t(locale, "doc.open")}
         </button>
         <button data-testid="settings-open" onClick={() => setSettingsOpen(true)}>
           {t(locale, "settings.open")}
@@ -222,6 +227,7 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
           </aside>
         )}
       </main>
+      {documents.dialog}
       {settingsOpen && (
         <SettingsDialog
           locale={locale}
