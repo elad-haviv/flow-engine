@@ -7,12 +7,13 @@ export interface SceneViewProps {
   selection: string[];
   /** Dots to draw on terminals while wiring */
   markers: Array<{ terminalId: string; p: Point }>;
-  tool: "select" | "place" | "wire";
+  tool: "select" | "place" | "wire" | "annotate";
   ariaLabel: string;
   onSelect: (ids: string[]) => void;
   onPlace: (p: Point) => void;
   onWireClick: (p: Point) => void;
   onMove: (ids: string[], dx: number, dy: number) => void;
+  showGrid?: boolean;
   /** Draw only what overlaps the view (default true) */
   cull?: boolean;
 }
@@ -31,6 +32,8 @@ function PrimView({ p }: { p: Prim }) {
       return <line className={cls} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} />;
     case "rect":
       return <rect className={cls} x={p.x} y={p.y} width={p.w} height={p.h} />;
+    case "ellipse":
+      return <ellipse className={cls} cx={p.cx} cy={p.cy} rx={p.rx} ry={p.ry} />;
     case "circle":
       return <circle className={cls} cx={p.cx} cy={p.cy} r={p.r} />;
     case "path":
@@ -83,7 +86,7 @@ export function SceneView(props: SceneViewProps) {
   const down = (e: RPE) => {
     const w = world(e);
     const hit = hitTest(scene.elements, w);
-    if (tool === "place") return props.onPlace(w);
+    if (tool === "place" || tool === "annotate") return props.onPlace(w);
     if (tool === "wire") return props.onWireClick(w);
     if (hit) {
       const ids = selection.includes(hit.entityId) ? selection : [hit.entityId];
@@ -145,7 +148,9 @@ export function SceneView(props: SceneViewProps) {
           <circle cx="1" cy="1" r="0.8" className="s-grid" />
         </pattern>
       </defs>
-      <rect x={view.x} y={view.y} width={view.w} height={view.h} fill="url(#grid)" pointerEvents="none" />
+      {props.showGrid !== false && (
+        <rect x={view.x} y={view.y} width={view.w} height={view.h} fill="url(#grid)" pointerEvents="none" />
+      )}
       {shown.map((e) => (
         <ElementView
           key={e.id}

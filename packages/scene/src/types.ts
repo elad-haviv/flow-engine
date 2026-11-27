@@ -15,11 +15,13 @@ export type Prim =
   | { t: "line"; x1: number; y1: number; x2: number; y2: number; cls?: string }
   | { t: "rect"; x: number; y: number; w: number; h: number; cls?: string }
   | { t: "circle"; cx: number; cy: number; r: number; cls?: string }
+  | { t: "ellipse"; cx: number; cy: number; rx: number; ry: number; cls?: string }
+  | { t: "ellipse"; cx: number; cy: number; rx: number; ry: number; cls?: string }
   | { t: "path"; d: string; cls?: string }
   | { t: "polyline"; points: Point[]; cls?: string }
   | { t: "text"; x: number; y: number; text: string; anchor?: "start" | "middle" | "end"; cls?: string };
 
-export type SceneLayer = "device" | "wire" | "annotation";
+export type SceneLayer = "zone" | "wire" | "device" | "annotation";
 
 export interface SceneElement {
   /** Stable key for rendering */

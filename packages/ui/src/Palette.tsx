@@ -1,6 +1,7 @@
 import { DEFINITIONS } from "@flow/catalog";
 import type { Tool } from "@flow/editor";
 import { t, type Locale } from "@flow/i18n";
+import { AnnotationTools } from "./AnnotationTools";
 
 const GROUPS: Array<[string, string[]]> = [
   ["sources", ["grid", "generator", "battery", "solar_array"]],
@@ -43,6 +44,7 @@ export function Palette({ locale, tool, onTool }: { locale: Locale; tool: Tool; 
             ))}
         </section>
       ))}
+      <AnnotationTools locale={locale} tool={tool} onTool={onTool} />
     </nav>
   );
 }

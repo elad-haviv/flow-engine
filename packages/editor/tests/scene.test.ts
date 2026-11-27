@@ -86,3 +86,35 @@ describe("terminal lookup", () => {
     expect(terminalAtPoint(b.project, { x: 100, y: 150 })).toBeUndefined();
   });
 });
+
+describe("notes in the scene", () => {
+  it("zones draw at the back, notes on top, outlines are hit-testable, hidden layers disappear", () => {
+    let s = feeder();
+    const run = (a: Action) => (s = reduce(s, a, ctx));
+    run({ type: "annotate", shape: "zone", x: 40, y: 20 });
+    run({ type: "annotate", shape: "text", x: 300, y: 20 });
+    run({ type: "annotate", shape: "arrow", x: 300, y: 100 });
+    run({ type: "annotate", shape: "ellipse", x: 300, y: 160 });
+    run({ type: "annotate", shape: "rect", x: 300, y: 300 });
+    const sc = buildScene(s.project);
+    expect(sc.elements.map((e) => e.layer)).toEqual([
+      "zone",
+      "wire",
+      "device",
+      "device",
+      "annotation",
+      "annotation",
+      "annotation",
+      "annotation",
+    ]);
+    const zone = sc.elements[0]!;
+    expect(zone.path).toHaveLength(5);
+    expect(zone.prims.some((p) => p.t === "text" && p.cls === "zone-label")).toBe(true);
+    expect(sc.elements.at(-2)!.prims.some((p) => p.t === "ellipse")).toBe(true);
+    expect(buildScene(s.project, { hidden: ["zone", "annotation"] }).elements.map((e) => e.layer)).toEqual([
+      "wire",
+      "device",
+      "device",
+    ]);
+  });
+});

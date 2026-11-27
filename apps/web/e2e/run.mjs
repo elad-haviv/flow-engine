@@ -133,6 +133,43 @@ async function wire(page, a, b) {
   await page.close();
 }
 
+// 2b. Notes, zones, layers and settings
+{
+  const page = await fresh("en");
+  await place(page, "load", 300, 200);
+  await page.click('[data-testid="annotate-zone"]');
+  check("banner names the note tool", /Adding Zone/.test(await page.locator(".banner").textContent()));
+  const box = await canvas(page).boundingBox();
+  await page.mouse.click(box.x + 120, box.y + 120);
+  check("a zone is added", (await page.locator('[data-testid="el-zone"]').count()) === 1);
+  await page.click('[data-testid="annotate-text"]');
+  await page.mouse.click(box.x + 500, box.y + 150);
+  check("a text note is added", (await page.locator('[data-testid="el-annotation"]').count()) === 1);
+  await page.locator('[data-testid="el-annotation"]').first().click();
+  await page.locator('[data-testid="note-text"]').fill("Pump room");
+  check(
+    "the note text changes on the diagram",
+    /Pump room/.test(await page.locator('[data-testid="el-annotation"]').first().textContent()),
+  );
+  await page.click('[data-testid="layer-zone"]');
+  check("hiding the zone layer removes zones", (await page.locator('[data-testid="el-zone"]').count()) === 0);
+  await page.click('[data-testid="layer-zone"]');
+  check("showing it brings the zone back", (await page.locator('[data-testid="el-zone"]').count()) === 1);
+  await page.click('[data-testid="settings-open"]');
+  await page.locator('[data-testid="set-length"]').fill("30");
+  await page.locator('[data-testid="set-length"]').blur();
+  await page.click('[data-testid="settings-close"]');
+  await place(page, "grid", 300, 60);
+  await wire(page, 0, 1);
+  await page.click('[data-testid="tool-select"]');
+  await page.locator('[data-testid="el-wire"]').first().click({ force: true });
+  check(
+    "a new cable starts with the length from settings",
+    (await page.locator('[data-testid="cable-length"]').inputValue()) === "30",
+  );
+  await page.close();
+}
+
 // 3. Hebrew UI with mixed-direction labels
 {
   const page = await fresh("he-IL");

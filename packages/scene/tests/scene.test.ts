@@ -38,6 +38,7 @@ describe("geometry", () => {
     expect(primBounds({ t: "circle", cx: 5, cy: 5, r: 2 })).toEqual({ x: 3, y: 3, w: 4, h: 4 });
     expect(primBounds({ t: "line", x1: 0, y1: 0, x2: 4, y2: 3 })).toEqual({ x: 0, y: 0, w: 4, h: 3 });
     expect(primBounds({ t: "rect", x: 1, y: 1, w: 2, h: 2 }).w).toBe(2);
+    expect(primBounds({ t: "ellipse", cx: 5, cy: 5, rx: 4, ry: 2 })).toEqual({ x: 1, y: 3, w: 8, h: 4 });
     expect(
       primBounds({
         t: "polyline",
@@ -178,6 +179,13 @@ describe("translate", () => {
       y1: 6,
       x2: 6,
       y2: 7,
+    });
+    expect(translate({ t: "ellipse", cx: 0, cy: 0, rx: 2, ry: 1 }, 3, 4)).toEqual({
+      t: "ellipse",
+      cx: 3,
+      cy: 4,
+      rx: 2,
+      ry: 1,
     });
     expect(translate({ t: "rect", x: 0, y: 0, w: 2, h: 2 }, 1, 1)).toEqual({ t: "rect", x: 1, y: 1, w: 2, h: 2 });
     expect(translate({ t: "circle", cx: 0, cy: 0, r: 1 }, 1, 2)).toEqual({ t: "circle", cx: 1, cy: 2, r: 1 });

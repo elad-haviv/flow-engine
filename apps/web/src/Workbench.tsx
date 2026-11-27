@@ -9,18 +9,28 @@ import {
   terminalMarkers,
   type Action,
   type EditorState,
+  type Settings,
   type Problem,
 } from "@flow/editor";
 import { direction, t, type Locale } from "@flow/i18n";
 import { loadDocument, saveDocument } from "@flow/model";
 import type { Point } from "@flow/scene";
-import { Banner, Palette, ProblemsPanel, PropertiesPanel, SceneView } from "@flow/ui";
+import { Banner, LayersPanel, Palette, ProblemsPanel, PropertiesPanel, SceneView, SettingsDialog } from "@flow/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fileAccess, indexedDbStorage } from "./storage";
 
 const ctx = makeContext();
 const storage = indexedDbStorage();
 const LAST = "lastProject";
+const SETTINGS = "settings";
+
+function savedSettings(): Partial<Settings> {
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS) ?? "{}") as Partial<Settings>;
+  } catch {
+    return {};
+  }
+}
 
 const remember = (id: string): void => {
   try {
@@ -51,9 +61,21 @@ function selectable(state: EditorState, ids: string[]): string[] {
 }
 
 export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l: Locale) => void }) {
-  const [state, setState] = useState<EditorState>(() => createEditor());
+  const [state, setState] = useState<EditorState>(() => {
+    const s = createEditor();
+    return { ...s, settings: { ...s.settings, ...savedSettings() } };
+  });
   const [guide, setGuide] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const dispatch = useCallback((a: Action) => setState((s) => reduce(s, a, ctx)), []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS, JSON.stringify(state.settings));
+    } catch {
+      /* storage may be blocked */
+    }
+  }, [state.settings]);
 
   useEffect(() => {
     const id = recall();
@@ -92,15 +114,17 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
   }, [dispatch, state.selection]);
 
   const scene = useMemo(
-    () => buildScene(state.project, { results: state.results, expanded: state.expanded }),
-    [state.project, state.results, state.expanded],
+    () => buildScene(state.project, { results: state.results, expanded: state.expanded, hidden: state.hidden }),
+    [state.project, state.results, state.expanded, state.hidden],
   );
   const problems = useMemo(() => problemsOf(state.results), [state.results]);
   const markers = useMemo(() => terminalMarkers(state.project), [state.project]);
 
   const onPlace = (p: Point) => {
-    if (state.tool.type !== "place") return;
-    dispatch({ type: "place", kind: state.tool.kind, x: p.x - 30, y: p.y - 30 });
+    const tool = state.tool;
+    if (tool.type === "place") dispatch({ type: "place", kind: tool.kind, x: p.x - 30, y: p.y - 30 });
+    else if (tool.type === "annotate") dispatch({ type: "annotate", shape: tool.shape, x: p.x, y: p.y });
+    else return;
     dispatch({ type: "tool", tool: { type: "select" } });
   };
   const onWireClick = (p: Point) => {
@@ -139,6 +163,9 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
         <button data-testid="open" onClick={() => void open()}>
           {t(locale, "ui.open")}
         </button>
+        <button data-testid="settings-open" onClick={() => setSettingsOpen(true)}>
+          {t(locale, "settings.open")}
+        </button>
         <span className="spacer" />
         <label>
           {t(locale, "ui.profile")}
@@ -170,6 +197,7 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
           selection={state.selection}
           markers={markers}
           tool={state.tool.type}
+          showGrid={state.settings.showGrid}
           ariaLabel={t(locale, "ui.canvas")}
           onSelect={(ids) => dispatch({ type: "select", ids })}
           onPlace={onPlace}
@@ -194,8 +222,17 @@ export function Workbench({ locale, setLocale }: { locale: Locale; setLocale: (l
           </aside>
         )}
       </main>
+      {settingsOpen && (
+        <SettingsDialog
+          locale={locale}
+          settings={state.settings}
+          onChange={(patch) => dispatch({ type: "settings", patch })}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
       <aside className="side">
         <PropertiesPanel locale={locale} state={state} dispatch={dispatch} />
+        <LayersPanel locale={locale} hidden={state.hidden} onToggle={(layer) => dispatch({ type: "layer", layer })} />
         <ProblemsPanel
           locale={locale}
           problems={problems}

@@ -303,3 +303,51 @@ select:focus-visible {
   border-radius: 6px;
   margin: 0;
 }
+.s-note {
+  fill: var(--fg);
+  stroke: none;
+  font-size: 13px;
+}
+.s-note-shape {
+  stroke: var(--fg);
+  fill: none;
+  stroke-width: 1.5;
+}
+.s-zone {
+  stroke: var(--accent);
+  fill: var(--accent);
+  fill-opacity: 0.05;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.s-zone-label {
+  fill: var(--accent);
+  stroke: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+.check {
+  display: flex !important;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+.check input {
+  width: auto;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 10;
+}
+.modal-body {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 16px 20px;
+  width: min(420px, 92vw);
+  display: grid;
+  gap: 8px;
+}

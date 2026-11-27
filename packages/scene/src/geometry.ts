@@ -31,6 +31,8 @@ export function primBounds(p: Prim): Rect {
       ]);
     case "rect":
       return { x: p.x, y: p.y, w: p.w, h: p.h };
+    case "ellipse":
+      return { x: p.cx - p.rx, y: p.cy - p.ry, w: 2 * p.rx, h: 2 * p.ry };
     case "circle":
       return { x: p.cx - p.r, y: p.cy - p.r, w: 2 * p.r, h: 2 * p.r };
     case "polyline":
@@ -74,6 +76,8 @@ export function translate(p: Prim, dx: number, dy: number): Prim {
       return { ...p, x1: p.x1 + dx, y1: p.y1 + dy, x2: p.x2 + dx, y2: p.y2 + dy };
     case "rect":
       return { ...p, x: p.x + dx, y: p.y + dy };
+    case "ellipse":
+      return { ...p, cx: p.cx + dx, cy: p.cy + dy };
     case "circle":
       return { ...p, cx: p.cx + dx, cy: p.cy + dy };
     case "polyline":

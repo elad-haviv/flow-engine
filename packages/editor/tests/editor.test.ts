@@ -251,3 +251,41 @@ describe("edge cases", () => {
     expect(r.rejected).toBe("model.device.not_found");
   });
 });
+
+describe("notes, zones, layers and settings", () => {
+  it("adds, edits, moves and deletes every kind of note, with undo", () => {
+    let s = createEditor();
+    for (const shape of ["text", "rect", "ellipse", "arrow", "zone"] as const)
+      s = run(s, { type: "annotate", shape, x: 33, y: 47 });
+    expect(s.project.annotations.map((a) => a.type)).toEqual(["text", "rect", "ellipse", "arrow", "rect"]);
+    expect(s.project.annotations[4]).toMatchObject({ style: { zone: "1" }, text: "Z1" });
+    expect(s.project.annotations[0]!.placement).toMatchObject({ x: 40, y: 40 });
+    const id = s.project.annotations[1]!.id;
+    s = run(s, { type: "move", ids: [id], dx: 40, dy: 20 });
+    expect(s.project.annotations[1]!.placement).toMatchObject({ x: 80, y: 60 });
+    s = run(s, { type: "annotation", annotation: { ...s.project.annotations[0]!, text: "Main" } });
+    expect(s.project.annotations[0]!.text).toBe("Main");
+    s = run(s, { type: "delete", ids: [id] });
+    expect(s.project.annotations).toHaveLength(4);
+    s = run(s, { type: "undo" });
+    expect(s.project.annotations).toHaveLength(5);
+  });
+  it("hides layers and keeps settings out of the undo history", () => {
+    let s = run(createEditor(), { type: "layer", layer: "wire" });
+    expect(s.hidden).toEqual(["wire"]);
+    s = run(s, { type: "layer", layer: "wire" });
+    expect(s.hidden).toEqual([]);
+    s = run(s, { type: "settings", patch: { cableLengthM: 25, cableSectionMm2: 16 } });
+    expect(s.settings).toMatchObject({ cableLengthM: 25, cableSectionMm2: 16, showGrid: true });
+    expect(s.undo).toHaveLength(0);
+  });
+  it("new cables use the settings", () => {
+    let s = feeder();
+    s = run(s, { type: "settings", patch: { cableLengthM: 42, cableSectionMm2: 35 } });
+    s = run(s, { type: "place", kind: "load", x: 300, y: 280 });
+    s = run(s, { type: "connect", from: term(s, "Q1", "out"), to: term(s, "L2", "in") });
+    const cable = s.project.cables.at(-1)!;
+    expect(cable.lengthM).toBe(42);
+    expect(cable.conductors[0]!.sectionMm2).toBe(35);
+  });
+});

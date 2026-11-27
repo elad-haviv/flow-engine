@@ -1,16 +1,18 @@
-import type { ApplyContext } from "@flow/model";
+import type { Annotation, ApplyContext } from "@flow/model";
 import {
+  addAnnotation,
   connect,
   deleteEntities,
   moveEntities,
   placeDevice,
   renameDevice,
+  setAnnotation,
   setCable,
   setParam,
   setState,
 } from "./edits";
 import { insertBusbar } from "./fixes";
-import type { EditorState, Tool } from "./state";
+import type { EditorState, Layer, Settings, Shape, Tool } from "./state";
 import { redoStep, undoStep } from "./transaction";
 
 type EditArgs<F> = F extends (s: EditorState, c: ApplyContext, ...a: infer A) => EditorState ? A : never;
@@ -30,7 +32,11 @@ export type Action =
   | { type: "rename"; deviceId: string; name: string }
   | { type: "state"; deviceId: string; state: "closed" | "open" | "grounded" }
   | { type: "cable"; cableId: string; change: EditArgs<typeof setCable>[1] }
-  | { type: "fix"; terminalId: string };
+  | { type: "fix"; terminalId: string }
+  | { type: "annotate"; shape: Shape; x: number; y: number }
+  | { type: "annotation"; annotation: Annotation }
+  | { type: "layer"; layer: Layer }
+  | { type: "settings"; patch: Partial<Settings> };
 
 const toggle = (list: string[], id: string): string[] =>
   list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
@@ -54,6 +60,10 @@ const TABLE: Table = {
   state: (s, a, ctx) => setState(s, ctx, a.deviceId, a.state),
   cable: (s, a, ctx) => setCable(s, ctx, a.cableId, a.change),
   fix: (s, a, ctx) => insertBusbar(s, ctx, a.terminalId),
+  annotate: (s, a, ctx) => addAnnotation(s, ctx, a.shape, a.x, a.y),
+  annotation: (s, a, ctx) => setAnnotation(s, ctx, a.annotation),
+  layer: (s, a) => ({ ...s, hidden: toggle(s.hidden, a.layer) as Layer[] }),
+  settings: (s, a) => ({ ...s, settings: { ...s.settings, ...a.patch } }),
 };
 
 /** Pure reducer: the same state, action and context always give the same next state. */

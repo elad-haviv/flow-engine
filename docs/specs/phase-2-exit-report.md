@@ -7,7 +7,7 @@
 
 | Gate | Result |
 | --- | --- |
-| 1. `pnpm verify` and the Playwright journeys pass | Pass: 185 unit tests; branch coverage enforced at 85 percent for model, catalog, engine, scene and editor; 19 of 19 browser checks (`pnpm e2e`, run by hand, see below) |
+| 1. `pnpm verify` and the Playwright journeys pass | Pass: 185 unit tests; branch coverage enforced at 85 percent for model, catalog, engine, scene and editor; 26 of 26 browser checks (`pnpm e2e`, run by hand, see below) |
 | 2. Hebrew label prototype shows mixed text correctly | Pass in headless Chromium: a Hebrew name with Latin letters and numbers is wrapped in a Unicode isolate and the diagram stays left to right. Screenshot checked by Claude. A native Hebrew reader should look at it too |
 | 3. Rendering limit measured | See below |
 | 4. Five people complete the first feeder in under ten minutes | **Open.** The scripted journey (place three components, two wires, read the voltage) takes about half a second; that says nothing about a person |
@@ -38,11 +38,11 @@ Model additions: `device.rename` and `cable.set` commands.
 * **`.type` is not checked by the lint rule** for kind comparisons (carried over from Phase 0); scene elements use `layer`.
 * **Slice A to C are tested at the unit level and by the browser script**, not by a React component test suite.
 * **Browser journeys are not part of `pnpm verify`.** `pnpm e2e` needs Playwright and its browser; it searches the global npm root if Playwright is not installed locally. Wiring it into CI needs `npx playwright install chromium` on the runner.
-* **Zones, the layers pane, annotation styling and the settings page** from the Phase 2 parity rows are not built yet; they appear in the spec's parity table and are the next work.
+* **Zones, the layers pane, notes (text, rectangle, ellipse, arrow) and a settings page** are built (a zone is a dashed rectangle note with a name; layers can be hidden; settings hold the default length and cross-section of new cables and the grid toggle, kept in the browser). Note styling (colours, line widths, fonts) is not built.
 * **No designer pass.** The symbols and the visual style are functional and clean but are Claude's, not a designer's.
 
 ## Open items for the owner
 
 1. Who the five testers are and when.
 2. Look at the Hebrew screens as a native reader; tell me what reads wrong.
-3. Whether zones, layers and the settings page come next, or the test with people first.
+3. Whether Phase 3 (documents) starts now or the test with people comes first.

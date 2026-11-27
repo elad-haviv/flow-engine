@@ -209,6 +209,52 @@ function CableForm({
   );
 }
 
+function NoteForm({
+  locale,
+  id,
+  state,
+  dispatch,
+}: {
+  locale: Locale;
+  id: string;
+  state: EditorState;
+  dispatch: Dispatch;
+}) {
+  const note = state.project.annotations.find((a) => a.id === id)!;
+  const set = (patch: Partial<typeof note.placement>, text?: string) =>
+    dispatch({
+      type: "annotation",
+      annotation: { ...note, placement: { ...note.placement, ...patch }, ...(text !== undefined ? { text } : {}) },
+    });
+  const sized = note.type === "rect" || note.type === "ellipse";
+  return (
+    <form onSubmit={(e) => e.preventDefault()}>
+      <h3>{t(locale, note.style["zone"] === "1" ? "annotate.zone" : `annotate.${note.type}`)}</h3>
+      {note.type !== "arrow" && (
+        <label>
+          {t(locale, "note.text")}
+          <input data-testid="note-text" value={note.text ?? ""} onChange={(e) => set({}, e.target.value)} />
+        </label>
+      )}
+      {sized && (
+        <>
+          <label>
+            {t(locale, "note.width")}
+            <QuantityInput id="note-w" family="m" si={note.placement.w ?? 0} onCommit={(v) => v > 0 && set({ w: v })} />
+          </label>
+          <label>
+            {t(locale, "note.height")}
+            <QuantityInput id="note-h" family="m" si={note.placement.h ?? 0} onCommit={(v) => v > 0 && set({ h: v })} />
+          </label>
+        </>
+      )}
+      <button type="button" data-testid="delete" onClick={() => dispatch({ type: "delete", ids: [id] })}>
+        {t(locale, "ui.delete")}
+      </button>
+    </form>
+  );
+}
+
 export function PropertiesPanel({
   locale,
   state,
@@ -221,12 +267,14 @@ export function PropertiesPanel({
   const id = state.selection[0];
   const device = id ? state.project.devices.find((d) => d.id === id) : undefined;
   const wire = id ? state.project.wires.find((w) => w.id === id) : undefined;
+  const note = id ? state.project.annotations.find((a) => a.id === id) : undefined;
   return (
     <section className="properties" aria-label={t(locale, "ui.properties")}>
       <h2>{t(locale, "ui.properties")}</h2>
       {device && <DeviceForm key={device.id} locale={locale} device={device} state={state} dispatch={dispatch} />}
       {wire && <CableForm key={wire.id} locale={locale} wireId={wire.id} state={state} dispatch={dispatch} />}
-      {!device && !wire && <p className="muted">{t(locale, "ui.nothingSelected")}</p>}
+      {note && <NoteForm key={note.id} locale={locale} id={note.id} state={state} dispatch={dispatch} />}
+      {!device && !wire && !note && <p className="muted">{t(locale, "ui.nothingSelected")}</p>}
     </section>
   );
 }
