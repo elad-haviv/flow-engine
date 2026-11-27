@@ -88,3 +88,8 @@ The "unplaced" and "unspecified" counts double as a checklist of what is still m
 3. Which suppliers do you actually buy from in Israel? One of them may share a catalog file.
 4. Should version 1 produce a BoQ in the Dekel chapter style, or a plain grouped list?
 5. Do you want cable allowances (slack, terminations) to follow a fixed default set, or be set per project?
+
+## Owner answers (2026-11-27)
+
+* The owner holds no Dekel licence. Version 1 uses imported price lists and manual prices, and the Dekel chapter structure is a labels-only template.
+* Supplier catalog connectors are not needed for version 1.
