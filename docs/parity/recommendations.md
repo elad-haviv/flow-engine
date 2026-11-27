@@ -444,3 +444,7 @@
 | SIM-045 | Load basis rules | KEEP | Accept | 4 | medium | A defined load basis (Ir, In, or kVA) is needed for loading percentages and aggregation. |
 | SIM-046 | Load-balance report | LATER | Accept | 4 | medium | Load-balance report with diversity and phase imbalance is the aggregation view in Phase 4; unverified report component. |
 | SIM-047 | Subsystem virtual wires and port check | REDESIGN | Accept | 4 | high | Label-matched ports are fragile; the visual collapse should bind ports by node reference. |
+
+## Addendum (2026-11-27, design review)
+
+Six rows moved to Phase 4 because neutral current, per-phase results and the earth-fault loop are cut from Phase 1: UI-046, UI-048, CH-056, CH-063, SIM-008. SIM-010 stays in Phase 1 for three-phase and phase-to-phase faults only.
